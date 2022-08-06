@@ -4,14 +4,14 @@
 
 decrement_loop:
   DEX                   ; decrements the value in the register X
-  CPX #$01              ; compares the value in the register X to the value 0x01. If they are equal, the Z flag will be set to 1, otherwise 0.
+  CPX #$01              ; Compares X Register (CPX): compares the value in the register X to the value 0x01. If they are equal, the Z flag will be set to 1, otherwise 0.
   BNE decrement_loop    ; Branch Not Equal (BNE). If the two values are not equal, go back to the start of the decrement_loop
 
 increment_loop:
   INX                   ; increments the value in the register X
   CPX #$05              ; compares the value of the register X with the value 0x05
   BEQ subtracts_acc     ; if its five, break
-  CPX #$0A              ; compares the value of the register X with the value 0x0A
+  CPX #$0A              ; Compares X Register (CPX): compares the value of the register X with the value 0x0A
   BNE increment_loop    ; if the values are not equal, go back to the increment loop. otherwise, continue
 
 break_program:  
