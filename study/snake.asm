@@ -127,8 +127,8 @@ move_left:
   RTS
 
 move_snake:
-  LDA #snake_bg_color
-  LDY #$00
+  LDA #snake_bg_color               ; loads the background color (black) into the Accumulator
+  LDY #$00                          
   STA (snake_tail_low_byte_addr), Y ; indirect indexed addressing
 
   ; updates new tail
@@ -136,15 +136,36 @@ move_snake:
   INX
   STX snake_tail_low_byte_addr
 
-  LDA #snake_color
-  LDY snake_head_low_byte_addr
-  INY
+  ; If low order wraps around, updates high order
+  CPX #$00
+  BEQ update_snake_tail_high_order_byte
+
+  LDA #snake_color                  ; loads the snake color (white) into the accumulator
+  LDY #$01
   STA (snake_head_low_byte_addr), Y
 
   ; updates new head
   LDX snake_head_low_byte_addr
   INX
   STX snake_head_low_byte_addr
+
+  ; If low order wraps around, updates high order
+  CPX #$00
+  BEQ update_snake_head_high_order_byte
+
+  RTS
+
+update_snake_tail_high_order_byte:
+  LDX snake_tail_high_byte_addr
+  INX
+  STX snake_tail_high_byte_addr
+
+  RTS
+
+update_snake_head_high_order_byte:
+  LDX snake_head_high_byte_addr
+  INX
+  STX snake_head_high_byte_addr
 
   RTS
 
