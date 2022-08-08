@@ -90,7 +90,7 @@ loop:
 
 ; Basically a Switch-case
 read_keys:
-  LDA #system_last_key
+  LDA system_last_key
 
   CMP #w_key
   BEQ move_up
