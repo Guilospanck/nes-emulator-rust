@@ -18,7 +18,7 @@ define snake_head_high_byte_addr $03             ; address 0x05 will have the da
 define snake_tail_low_byte_addr $04              ; address 0x06 will have the data for the snake tail low byte
 define snake_tail_high_byte_addr $05             ; address 0x07 will have the data for the snake tail high byte
 
-define snake_color 1                        ; defines the color of the snake (white)
+define snake_color 4                        ; defines the color of the snake (purple)
 define snake_bg_color 0                     ; defines the bg color (black)
 define snake_length 5                       ; initial snake length value
 
@@ -36,7 +36,7 @@ init_snake:
   LDA #snake_length ; snake_length
   STA snake_length_addr
 
-  LDA #snake_right ; snake direction
+  LDA #snake_bottom ; snake direction
   STA snake_direction_addr
 
   ; draws snake
@@ -127,23 +127,59 @@ move_left:
   RTS
 
 move_snake:
-  LDA #snake_bg_color               ; loads the background color (black) into the Accumulator
-  LDY #$00                          
-  STA (snake_tail_low_byte_addr), Y ; indirect indexed addressing
+  ;;;;; Tail
+  ; LDA #snake_bg_color               ; loads the background color (black) into the Accumulator
+  ; LDY #$00                          
+  ; STA (snake_tail_low_byte_addr), Y ; indirect indexed addressing
 
-  ; updates new tail
-  LDX snake_tail_low_byte_addr
-  INX
-  STX snake_tail_low_byte_addr
+  ; ; updates new tail
+  ; LDX snake_tail_low_byte_addr
+  ; INX
+  ; STX snake_tail_low_byte_addr
 
-  ; If low order wraps around, updates high order
-  CPX #$00
-  BEQ update_snake_tail_high_order_byte
+  ; ; If low order wraps around, updates high order
+  ; CPX #$00
+  ; BEQ update_snake_tail_high_order_byte
+  ;;;;;
 
-  LDA #snake_color                  ; loads the snake color (white) into the accumulator
-  LDY #$01
-  STA (snake_head_low_byte_addr), Y
+  ;;;;;;;
+  JSR add_snake_to_its_direction
+  
 
+  JSR print_new_snake_head
+  ;;;;;; 
+
+  RTS
+
+add_snake_to_its_direction:
+  CLC
+  LDX snake_direction_addr
+
+  CPX #snake_up
+  BEQ add_snake_up
+
+  CPX #snake_right
+  BEQ add_snake_right
+
+  CPX #snake_bottom
+  BEQ add_snake_bottom
+
+  CPX #snake_left
+  BEQ add_snake_left
+
+  RTS
+
+add_snake_up:
+  LDA snake_head_low_byte_addr
+  SEC
+  SBC #$20  ; 32 in decimal
+  STA snake_head_low_byte_addr
+
+  BCS dec_snake_head_high_order_byte
+
+  RTS
+
+add_snake_right:
   ; updates new head
   LDX snake_head_low_byte_addr
   INX
@@ -151,22 +187,46 @@ move_snake:
 
   ; If low order wraps around, updates high order
   CPX #$00
-  BEQ update_snake_head_high_order_byte
+  BEQ inc_snake_head_high_order_byte
+  RTS
+
+add_snake_bottom:
+  LDA snake_head_low_byte_addr
+  CLC
+  ADC #$20  ; 32 in decimal
+  STA snake_head_low_byte_addr
+
+  BCS inc_snake_head_high_order_byte  ; Branch if Carry Set
 
   RTS
 
-update_snake_tail_high_order_byte:
-  LDX snake_tail_high_byte_addr
-  INX
-  STX snake_tail_high_byte_addr
+add_snake_left:
+  ; updates new head
+  LDX snake_head_low_byte_addr
+  DEX
+  STX snake_head_low_byte_addr
 
+  ; If low order wraps around, updates high order
+  CPX #$ff
+  BEQ dec_snake_head_high_order_byte
   RTS
 
-update_snake_head_high_order_byte:
+print_new_snake_head:
+  LDA #snake_color                  ; loads the snake color (white) into the accumulator
+  LDY #$00
+  STA (snake_head_low_byte_addr), Y
+  RTS
+
+inc_snake_head_high_order_byte:
   LDX snake_head_high_byte_addr
   INX
   STX snake_head_high_byte_addr
 
   RTS
 
-  
+dec_snake_head_high_order_byte:
+  LDX snake_head_high_byte_addr
+  DEX
+  STX snake_head_high_byte_addr
+
+  RTS
