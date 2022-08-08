@@ -82,11 +82,20 @@ loop:
   ; moves snake  
   JSR move_snake
 
+  ; delay loop
+  LDX #$00
+  JSR delay_loop
+
   ; infinite loop
   LDA #$01
   CMP #$02
   BNE loop
-  BRK
+
+delay_loop:
+  INX
+  CPX #$ff
+  BNE delay_loop
+  RTS
 
 ; Basically a Switch-case
 read_keys:
@@ -175,7 +184,7 @@ add_snake_up:
   SBC #$20  ; 32 in decimal
   STA snake_head_low_byte_addr
 
-  BCS dec_snake_head_high_order_byte
+  BCC dec_snake_head_high_order_byte
 
   RTS
 
