@@ -18,9 +18,9 @@ define snake_head_high_byte_addr $03             ; address 0x05 will have the da
 define snake_tail_low_byte_addr $04              ; address 0x06 will have the data for the snake tail low byte
 define snake_tail_high_byte_addr $05             ; address 0x07 will have the data for the snake tail high byte
 
-define snake_color 4                        ; defines the color of the snake (purple)
-define snake_bg_color 0                     ; defines the bg color (black)
-define snake_length 5                       ; initial snake length value
+define snake_color 4                             ; defines the color of the snake (purple)
+define snake_bg_color 0                          ; defines the bg color (black)
+define snake_length 5                            ; initial snake length value
 
 ;; Possible snake directions
 define snake_up 1
@@ -152,7 +152,7 @@ move_snake:
   ;;;;;
 
   ;;;;;;;
-  JSR add_snake_to_its_direction
+  JSR move_snake_to_its_direction
   
 
   JSR print_new_snake_head
@@ -160,7 +160,7 @@ move_snake:
 
   RTS
 
-add_snake_to_its_direction:
+move_snake_to_its_direction:
   CLC
   LDX snake_direction_addr
 
@@ -180,11 +180,11 @@ add_snake_to_its_direction:
 
 add_snake_up:
   LDA snake_head_low_byte_addr
-  SEC
+  SEC                                       ; Set Carry Flag
   SBC #$20  ; 32 in decimal
   STA snake_head_low_byte_addr
 
-  BCC dec_snake_head_high_order_byte
+  BCC dec_snake_head_high_order_byte        ; Branch if Carry Clear
 
   RTS
 
@@ -194,14 +194,13 @@ add_snake_right:
   INX
   STX snake_head_low_byte_addr
 
-  ; If low order wraps around, updates high order
-  CPX #$00
-  BEQ inc_snake_head_high_order_byte
+  ;; If low order wraps around, get back to the beginning of the line
+  JSR return_to_the_beginning_of_the_line_right_direction
   RTS
 
 add_snake_bottom:
   LDA snake_head_low_byte_addr
-  CLC
+  CLC                                       ; Clear Carry Flag
   ADC #$20  ; 32 in decimal
   STA snake_head_low_byte_addr
 
@@ -215,9 +214,8 @@ add_snake_left:
   DEX
   STX snake_head_low_byte_addr
 
-  ; If low order wraps around, updates high order
-  CPX #$ff
-  BEQ dec_snake_head_high_order_byte
+  ;; If low order wraps around, return to the beginning of the line
+  JSR return_to_the_beginning_of_the_line_left_direction
   RTS
 
 print_new_snake_head:
@@ -238,4 +236,142 @@ dec_snake_head_high_order_byte:
   DEX
   STX snake_head_high_byte_addr
 
+  RTS
+
+return_to_the_beginning_of_the_line_right_direction:
+  ; right direction
+  CPX #$00
+  BEQ go_back_to_e0
+
+  CPX #$20
+  BEQ go_back_to_00
+
+  CPX #$40
+  BEQ go_back_to_20
+  
+  CPX #60
+  BEQ go_back_to_40
+  
+  CPX #$80
+  BEQ go_back_to_60
+  
+  CPX #$A0
+  BEQ go_back_to_80
+  
+  CPX #$C0
+  BEQ go_back_to_a0
+  
+  CPX #$E0
+  BEQ go_back_to_c0
+
+  RTS  
+
+return_to_the_beginning_of_the_line_left_direction:  
+  ; left direction
+  CPX #$ff
+  BEQ go_back_to_1f
+
+  CPX #$1f
+  BEQ go_back_to_3f
+
+  CPX #$3f
+  BEQ go_back_to_5f
+
+  CPX #$5f
+  BEQ go_back_to_7f
+
+  CPX #$7f
+  BEQ go_back_to_9f
+
+  CPX #$9f
+  BEQ go_back_to_bf
+
+  CPX #$bf
+  BEQ go_back_to_df
+
+  CPX #$df
+  BEQ go_back_to_ff
+
+  RTS  
+
+; right direction
+go_back_to_00:
+  LDX #$00
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_20:
+  LDX #$20
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_40:
+  LDX #$40
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_60:
+  LDX #$60
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_80:
+  LDX #$80
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_a0:
+  LDX #$a0
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_c0:
+  LDX #$c0
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_e0:
+  LDX #$e0
+  STX snake_head_low_byte_addr
+  RTS
+
+; left direction
+go_back_to_1f:
+  LDX #$1f
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_3f:
+  LDX #$3f
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_5f:
+  LDX #$5f
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_7f:
+  LDX #$7f
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_9f:
+  LDX #$9f
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_bf:
+  LDX #$bf
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_df:
+  LDX #$df
+  STX snake_head_low_byte_addr
+  RTS
+
+go_back_to_ff:
+  LDX #$ff
+  STX snake_head_low_byte_addr
   RTS
