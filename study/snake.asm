@@ -179,13 +179,19 @@ move_snake_to_its_direction:
   RTS
 
 add_snake_up:
+  JSR subtracts_snake_head_low_byte
+
+  BCC dec_snake_head_high_order_byte        ; Branch if Carry Clear
+
+  ;; If high order greater than 0x50 or lesser than 0x20, wraps
+  JSR return_to_the_perimeter_of_the_board
+  RTS
+
+subtracts_snake_head_low_byte:
   LDA snake_head_low_byte_addr
   SEC                                       ; Set Carry Flag
   SBC #$20  ; 32 in decimal
   STA snake_head_low_byte_addr
-
-  BCC dec_snake_head_high_order_byte        ; Branch if Carry Clear
-
   RTS
 
 add_snake_right:
@@ -199,13 +205,19 @@ add_snake_right:
   RTS
 
 add_snake_bottom:
+  JSR adds_snake_head_low_byte
+
+  BCS inc_snake_head_high_order_byte  ; Branch if Carry Set
+
+  ;; If high order greater than 0x50 or lesser than 0x20, wraps
+  JSR return_to_the_perimeter_of_the_board
+  RTS
+
+adds_snake_head_low_byte:
   LDA snake_head_low_byte_addr
   CLC                                       ; Clear Carry Flag
   ADC #$20  ; 32 in decimal
   STA snake_head_low_byte_addr
-
-  BCS inc_snake_head_high_order_byte  ; Branch if Carry Set
-
   RTS
 
 add_snake_left:
@@ -238,6 +250,29 @@ dec_snake_head_high_order_byte:
 
   RTS
 
+return_to_the_perimeter_of_the_board:
+  LDX snake_head_high_byte_addr
+
+  CPX #$06
+  BEQ go_back_to_high_order_02
+
+  CPX #$01
+  BEQ go_back_to_high_order_05
+
+  RTS
+
+go_back_to_high_order_02:
+  JSR subtracts_snake_head_low_byte
+  LDX #$02
+  STX snake_head_high_byte_addr
+  RTS
+
+go_back_to_high_order_05:
+  JSR adds_snake_head_low_byte
+  LDX #$05
+  STX snake_head_high_byte_addr
+  RTS
+
 return_to_the_beginning_of_the_line_right_direction:
   ; right direction
   CPX #$00
@@ -249,7 +284,7 @@ return_to_the_beginning_of_the_line_right_direction:
   CPX #$40
   BEQ go_back_to_20
   
-  CPX #60
+  CPX #$60
   BEQ go_back_to_40
   
   CPX #$80
