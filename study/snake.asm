@@ -184,7 +184,7 @@ add_snake_up:
   BCC dec_snake_head_high_order_byte        ; Branch if Carry Clear
 
   ;; If high order greater than 0x50 or lesser than 0x20, wraps
-  JSR return_to_the_perimeter_of_the_board
+  JSR return_to_the_perimeter_of_the_board_top_bottom
   RTS
 
 subtracts_snake_head_low_byte:
@@ -202,6 +202,9 @@ add_snake_right:
 
   ;; If low order wraps around, get back to the beginning of the line
   JSR return_to_the_beginning_of_the_line_right_direction
+
+  JSR return_to_the_perimeter_of_the_board_left_right
+
   RTS
 
 add_snake_bottom:
@@ -210,7 +213,7 @@ add_snake_bottom:
   BCS inc_snake_head_high_order_byte  ; Branch if Carry Set
 
   ;; If high order greater than 0x50 or lesser than 0x20, wraps
-  JSR return_to_the_perimeter_of_the_board
+  JSR return_to_the_perimeter_of_the_board_top_bottom
   RTS
 
 adds_snake_head_low_byte:
@@ -228,6 +231,8 @@ add_snake_left:
 
   ;; If low order wraps around, return to the beginning of the line
   JSR return_to_the_beginning_of_the_line_left_direction
+
+  JSR return_to_the_perimeter_of_the_board_left_right
   RTS
 
 print_new_snake_head:
@@ -250,25 +255,46 @@ dec_snake_head_high_order_byte:
 
   RTS
 
-return_to_the_perimeter_of_the_board:
+return_to_the_perimeter_of_the_board_top_bottom:
   LDX snake_head_high_byte_addr
 
   CPX #$06
-  BEQ go_back_to_high_order_02
+  BEQ go_back_to_high_order_02_top_bottom
 
   CPX #$01
-  BEQ go_back_to_high_order_05
+  BEQ go_back_to_high_order_05_top_bottom
 
   RTS
 
-go_back_to_high_order_02:
+go_back_to_high_order_02_top_bottom:
   JSR subtracts_snake_head_low_byte
   LDX #$02
   STX snake_head_high_byte_addr
   RTS
 
-go_back_to_high_order_05:
+go_back_to_high_order_05_top_bottom:
   JSR adds_snake_head_low_byte
+  LDX #$05
+  STX snake_head_high_byte_addr
+  RTS
+
+return_to_the_perimeter_of_the_board_left_right:
+  LDX snake_head_high_byte_addr
+
+  CPX #$06
+  BEQ go_back_to_high_order_02_left_right
+
+  CPX #$01
+  BEQ go_back_to_high_order_05_left_right
+
+  RTS
+
+go_back_to_high_order_02_left_right:
+  LDX #$02
+  STX snake_head_high_byte_addr
+  RTS
+
+go_back_to_high_order_05_left_right:
   LDX #$05
   STX snake_head_high_byte_addr
   RTS
