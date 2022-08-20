@@ -136,27 +136,9 @@ move_left:
   RTS
 
 move_snake:
-  ;;;;; Tail
-  ; LDA #snake_bg_color               ; loads the background color (black) into the Accumulator
-  ; LDY #$00                          
-  ; STA (snake_tail_low_byte_addr), Y ; indirect indexed addressing
-
-  ; ; updates new tail
-  ; LDX snake_tail_low_byte_addr
-  ; INX
-  ; STX snake_tail_low_byte_addr
-
-  ; ; If low order wraps around, updates high order
-  ; CPX #$00
-  ; BEQ update_snake_tail_high_order_byte
-  ;;;;;
-
-  ;;;;;;;
-  JSR move_snake_to_its_direction
-  
+  JSR move_snake_to_its_direction  
 
   JSR print_new_snake_head
-  ;;;;;; 
 
   RTS
 
@@ -213,7 +195,8 @@ add_snake_bottom:
   BCS inc_snake_head_high_order_byte  ; Branch if Carry Set
 
   ;; If high order greater than 0x50 or lesser than 0x20, wraps
-  JSR return_to_the_perimeter_of_the_board_top_bottom
+  JSR return_to_the_perimeter_of_the_board_top_bottom 
+
   RTS
 
 adds_snake_head_low_byte:
@@ -236,10 +219,19 @@ add_snake_left:
   RTS
 
 print_new_snake_head:
-  LDA #snake_color                  ; loads the snake color (white) into the accumulator
   LDY #$00
+
+  ; verifies if snake its bitting its own body
+  LDA (snake_head_low_byte_addr), Y
+  CMP #snake_color
+  BEQ end_game
+
+  LDA #snake_color                  ; loads the snake color into the accumulator
   STA (snake_head_low_byte_addr), Y
   RTS
+
+end_game:
+  BRK
 
 inc_snake_head_high_order_byte:
   LDX snake_head_high_byte_addr
