@@ -22,6 +22,11 @@ define snake_color 4                             ; defines the color of the snak
 define snake_bg_color 0                          ; defines the bg color (black)
 define snake_length 5                            ; initial snake length value
 
+;; Apple properties
+define apple_color 6
+define apple_location_low_byte_addr $06
+define apple_location_high_byte_addr $07
+
 ;; Possible snake directions
 define snake_up 1
 define snake_right 2
@@ -30,6 +35,7 @@ define snake_left 4
 
 ; Main
   JSR init_snake
+  JSR init_apple
   JSR loop
 
 init_snake:
@@ -73,6 +79,20 @@ update_snake_head:
 update_snake_tail:
   STX snake_tail_low_byte_addr
   STY snake_tail_high_byte_addr
+
+  RTS
+
+init_apple:
+  ; updates apple location
+  LDX #$06
+  STX apple_location_low_byte_addr
+  LDX #$04
+  STX apple_location_high_byte_addr
+
+  ; draws apple
+  LDY #$00
+  LDA #apple_color
+  STA (apple_location_low_byte_addr), Y
 
   RTS
 
