@@ -246,8 +246,18 @@ print_new_snake_head:
   CMP #snake_color
   BEQ end_game
 
+  CMP #apple_color
+  BEQ increase_snake_length
+
   LDA #snake_color                  ; loads the snake color into the accumulator
   STA (snake_head_low_byte_addr), Y
+  RTS
+
+increase_snake_length:
+  LDX snake_length_addr
+  INX
+  STX snake_length_addr
+
   RTS
 
 end_game:
