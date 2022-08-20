@@ -2,6 +2,7 @@
 
 ;; System variables
 define system_last_key $ff ; gets the last pressed key
+define sys_random $fe ; random system value
 
 ;; ASCII WASD Keys
 define w_key $77 ; w key in ascii hex format
@@ -21,6 +22,7 @@ define snake_tail_high_byte_addr $05             ; address 0x07 will have the da
 define snake_color 4                             ; defines the color of the snake (purple)
 define snake_bg_color 0                          ; defines the bg color (black)
 define snake_length 5                            ; initial snake length value
+define test $08
 
 ;; Apple properties
 define apple_color 6
@@ -246,19 +248,39 @@ print_new_snake_head:
   CMP #snake_color
   BEQ end_game
 
+  ; verifies if an apple was found
   CMP #apple_color
-  BEQ increase_snake_length
+  BEQ update_snake_length_and_randomize_apple
 
   LDA #snake_color                  ; loads the snake color into the accumulator
   STA (snake_head_low_byte_addr), Y
   RTS
 
-increase_snake_length:
+update_snake_length_and_randomize_apple:
   LDX snake_length_addr
   INX
   STX snake_length_addr
 
+  JMP randomize_apple
+
   RTS
+
+randomize_apple:
+  JMP clear_apple
+  ; JMP verify_random_apple_position
+
+  RTS
+
+clear_apple:  
+  LDY #$00
+  LDA #snake_color
+  STA (apple_location_low_byte_addr), Y
+  RTS
+
+; verify_random_apple_position:
+;   LDA $0200, sys_random
+;   CMP #snake_color
+;   RTS
 
 end_game:
   BRK
