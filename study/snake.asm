@@ -22,12 +22,11 @@ define snake_tail_high_byte_addr $05             ; address 0x07 will have the da
 define snake_color 4                             ; defines the color of the snake (purple)
 define snake_bg_color 0                          ; defines the bg color (black)
 define snake_length 5                            ; initial snake length value
-define test $08
 
 ;; Apple properties
-define apple_color 6
-define apple_location_low_byte_addr $06
-define apple_location_high_byte_addr $07
+define apple_color 1
+define apple_location_low_byte_addr $10
+define apple_location_high_byte_addr $11
 
 ;; Possible snake directions
 define snake_up 1
@@ -92,10 +91,14 @@ init_apple:
   STX apple_location_high_byte_addr
 
   ; draws apple
+  JSR draw_apple
+
+  RTS
+
+draw_apple:
   LDY #$00
   LDA #apple_color
   STA (apple_location_low_byte_addr), Y
-
   RTS
 
 loop:
@@ -243,7 +246,7 @@ add_snake_left:
 print_new_snake_head:
   LDY #$00
 
-  ; verifies if snake its bitting its own body
+  ; verifies if snake it's bitting its own body
   LDA (snake_head_low_byte_addr), Y
   CMP #snake_color
   BEQ end_game
@@ -261,13 +264,13 @@ update_snake_length_and_randomize_apple:
   INX
   STX snake_length_addr
 
-  JMP randomize_apple
+  JSR randomize_apple
 
   RTS
 
 randomize_apple:
-  JMP clear_apple
-  ; JMP verify_random_apple_position
+  JSR clear_apple
+  JSR verify_random_apple_position
 
   RTS
 
@@ -275,12 +278,28 @@ clear_apple:
   LDY #$00
   LDA #snake_color
   STA (apple_location_low_byte_addr), Y
+
   RTS
 
-; verify_random_apple_position:
-;   LDA $0200, sys_random
-;   CMP #snake_color
-;   RTS
+verify_random_apple_position:
+  LDA sys_random
+  STA apple_location_low_byte_addr
+
+  LDA sys_random
+  AND #$03 ; mask the 2 lowest bits (0000 0011 = 0x03)
+  CLC
+  ADC #2
+  STA apple_location_high_byte_addr
+
+  ; verifies if apple is at the same spot as snake
+  LDY #$00
+  LDA (apple_location_low_byte_addr), Y
+  CMP #snake_color
+  BEQ verify_random_apple_position
+
+  JSR draw_apple
+
+  RTS
 
 end_game:
   BRK
