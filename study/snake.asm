@@ -130,6 +130,7 @@ delay_loop:
 ; Basically a Switch-case
 read_keys:
   LDA system_last_key
+  LDX snake_direction_addr
 
   CMP #w_key
   BEQ move_up
@@ -146,21 +147,41 @@ read_keys:
   RTS
 
 move_up:
+  CPX #snake_bottom
+  BNE go_up
+  RTS
+
+go_up:
   LDA #snake_up
   STA snake_direction_addr
   RTS
 
 move_right:
+  CPX #snake_left
+  BNE go_right
+  RTS
+
+go_right:
   LDA #snake_right
   STA snake_direction_addr
   RTS
 
 move_bottom:
+  CPX #snake_up
+  BNE go_bottom
+  RTS
+
+go_bottom:
   LDA #snake_bottom
   STA snake_direction_addr
   RTS
 
 move_left:
+  CPX #snake_right
+  BNE go_left
+  RTS
+
+go_left:
   LDA #snake_left
   STA snake_direction_addr
   RTS
