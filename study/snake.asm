@@ -232,6 +232,13 @@ add_snake_up:
   JSR return_to_the_perimeter_of_the_board_top_bottom
   RTS
 
+dec_snake_head_high_order_byte:
+  LDX snake_head_high_byte_addr
+  DEX
+  STX snake_head_high_byte_addr
+
+  RTS
+
 subtracts_snake_head_low_byte:
   LDA snake_head_low_byte_addr
   SEC                                       ; Set Carry Flag
@@ -302,6 +309,9 @@ update_snake_length_and_randomize_apple:
   INX
   STX snake_length_addr
 
+  JSR load_x_register_with_snake_length_mult_by_2_minus_2  
+  JSR shift_snake_position
+
   JSR randomize_apple
 
   RTS
@@ -345,13 +355,6 @@ end_game:
 inc_snake_head_high_order_byte:
   LDX snake_head_high_byte_addr
   INX
-  STX snake_head_high_byte_addr
-
-  RTS
-
-dec_snake_head_high_order_byte:
-  LDX snake_head_high_byte_addr
-  DEX
   STX snake_head_high_byte_addr
 
   RTS
