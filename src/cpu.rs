@@ -23,7 +23,33 @@ impl CPU {
   pub fn interpret(&mut self, program: Vec<u8>) {
     self.program_counter = 0;
 
-    let op_code = program[self.program_counter as usize];
-    println!("{}", op_code);
+    loop {
+      let op_code = program[self.program_counter as usize];
+      self.program_counter += 1;
+  
+      match op_code {
+        0xA9 => { // LDA
+          let param = program[self.program_counter as usize];
+          self.program_counter += 1;
+
+          self.accumulator = param;
+
+          // Set Status Flags
+          if self.accumulator == 0 {
+            self.status = self.status | 0b0000_0010; // set zero flag to 1
+          } else {
+            self.status = self.status & 0b1111_1101; // set zero flag to 0
+          }
+
+          if self.accumulator & 0b1000_0000 != 0 {
+            self.status = self.status | 0b1000_0000; // set negative flag to 1
+          } else {
+            self.status = self.status & 0b0111_1111; // set negative flag to 0
+          }
+
+        },
+        _ => todo!()
+      }
+    }
   }
 }
