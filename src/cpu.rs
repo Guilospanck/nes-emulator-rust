@@ -48,6 +48,9 @@ impl CPU {
           }
 
         },
+        0x00 => { // BRK
+          return;
+        },
         _ => todo!()
       }
     }
