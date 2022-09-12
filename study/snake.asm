@@ -14,19 +14,19 @@ define d_key $64 ; d key in ascii hex format
 define snake_length_addr $00                     ; address 0x02 will have the data for the snake length
 define snake_direction_addr $01                  ; address 0x03 will have the data for the snake direction
 
-define snake_head_low_byte_addr $02              ; address 0x04 will have the data for the snake head low byte
-define snake_head_high_byte_addr $03             ; address 0x05 will have the data for the snake head high byte
-define snake_tail_low_byte_addr $04              ; address 0x06 will have the data for the snake tail low byte
-define snake_tail_high_byte_addr $05             ; address 0x07 will have the data for the snake tail high byte
+define snake_head_low_byte_addr $10              ; address 0x04 will have the data for the snake head low byte
+define snake_head_high_byte_addr $11             ; address 0x05 will have the data for the snake head high byte
+; define snake_tail_low_byte_addr $04              ; address 0x06 will have the data for the snake tail low byte
+; define snake_tail_high_byte_addr $05             ; address 0x07 will have the data for the snake tail high byte
 
 define snake_color 4                             ; defines the color of the snake (purple)
 define snake_bg_color 0                          ; defines the bg color (black)
-define snake_length 5                            ; initial snake length value
+define snake_length 4                            ; initial snake length value
 
 ;; Apple properties
 define apple_color 1
-define apple_location_low_byte_addr $10
-define apple_location_high_byte_addr $11
+define apple_location_low_byte_addr $02
+define apple_location_high_byte_addr $03
 
 ;; Possible snake directions
 define snake_up 1
@@ -43,51 +43,56 @@ init_snake:
   LDA #snake_length ; snake_length
   STA snake_length_addr
 
-  LDA #snake_bottom ; snake direction
+  LDA #snake_right ; snake direction
   STA snake_direction_addr
 
   ; draws snake
-  LDX snake_length_addr
+  JSR save_init_snake_body
+
+  LDA snake_length_addr
+  ASL ; arithmetic shift left (multiply by 2)
+  TAX
   LDA #snake_color
   JSR draw_snake
 
-  ; update snake head (0x0204)
-  LDX #$04
-  LDY #$02
-  JSR update_snake_head  
+  RTS
 
-  ; update snake tail (0x0200)
-  LDX #$00
-  LDY #$02
-  JSR update_snake_tail
+save_init_snake_body:
+  LDA #$08
+  STA $10 ; snake_head_low_byte_addr
+  LDA #$04
+  STA $11 ; snake_head_high_byte_addr
+
+  LDA #$07
+  STA $12
+  LDA #$04
+  STA $13
+
+  LDA #$06
+  STA $14
+  LDA #$04
+  STA $15
+
+  LDA #$05
+  STA $16 ; snake_tail_low_byte_addr
+  LDA #$04
+  STA $17 ; snake_tail_high_byte_addr
 
   RTS
 
 draw_snake:
+  STA (snake_head_low_byte_addr, X)
   DEX
-  STA $0200, X
-  CPX #$00
-  BNE draw_snake
-
-  RTS
-
-update_snake_head:
-  STX snake_head_low_byte_addr
-  STY snake_head_high_byte_addr
-
-  RTS
-
-update_snake_tail:
-  STX snake_tail_low_byte_addr
-  STY snake_tail_high_byte_addr
+  DEX
+  BPL draw_snake
 
   RTS
 
 init_apple:
   ; updates apple location
-  LDX #$06
+  LDX #$09
   STX apple_location_low_byte_addr
-  LDX #$04
+  LDX #$03
   STX apple_location_high_byte_addr
 
   ; draws apple
@@ -161,9 +166,42 @@ move_left:
   RTS
 
 move_snake:
+  JSR load_x_register_with_snake_length_mult_by_2_minus_2
+  JSR clear_snake_tail
+
+  JSR shift_snake_position
+
   JSR move_snake_to_its_direction  
 
   JSR print_new_snake_head
+
+  RTS  
+
+load_x_register_with_snake_length_mult_by_2_minus_2:
+  LDA snake_length_addr
+  ASL
+  TAX
+  DEX
+  DEX
+
+  RTS
+
+clear_snake_tail:
+  LDA #snake_bg_color
+  STA (snake_head_low_byte_addr, X)
+
+  RTS
+
+shift_snake_position:
+  DEX
+  LDA snake_head_low_byte_addr, X
+  INX
+  INX
+  STA snake_head_low_byte_addr, X
+  DEX
+  DEX
+  CPX #$00
+  BNE shift_snake_position 
 
   RTS
 
