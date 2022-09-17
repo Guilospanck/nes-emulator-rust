@@ -104,6 +104,11 @@ impl CPU {
     match mode {
       AddressingMode::Immediate => self.program_counter,
       AddressingMode::ZeroPage => self.mem_read(self.program_counter) as u16,
+      AddressingMode::ZeroPageX => {
+        let pos = self.mem_read(self.program_counter);
+        let addr = pos as u16 + self.register_x as u16;
+        addr
+      },
       _ => todo!(),
     }
   }
@@ -129,7 +134,11 @@ impl CPU {
         0xA5 => {
           self.lda(AddressingMode::ZeroPage);
           self.program_counter += 1;
-        }
+        },
+        0xB5 => {
+          self.lda(AddressingMode::ZeroPageX);
+          self.program_counter += 1;
+        },
         0xAA => {
           // TAX
           self.register_x = self.accumulator.clone();
