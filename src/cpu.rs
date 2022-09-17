@@ -107,7 +107,7 @@ impl CPU {
     let lsb = self.mem_read(lookup_addr);
     let hsb = self.mem_read(lookup_addr.wrapping_add(1));
 
-    (hsb as u16) << 8  | (lsb as u16)
+    (hsb as u16) << 8 | (lsb as u16)
   }
 
   fn get_operand_addr(&self, mode: AddressingMode) -> u16 {
@@ -116,24 +116,20 @@ impl CPU {
       AddressingMode::ZeroPage => self.mem_read(self.program_counter) as u16,
       AddressingMode::ZeroPageX => {
         let pos = self.mem_read(self.program_counter);
-        let addr = pos.wrapping_add(self.register_x) as u16;
-        addr
+        pos.wrapping_add(self.register_x) as u16
       }
       AddressingMode::ZeroPageY => {
         let pos = self.mem_read(self.program_counter);
-        let addr = pos.wrapping_add(self.register_y) as u16;
-        addr
+        pos.wrapping_add(self.register_y) as u16
       }
       AddressingMode::Absolute => self.mem_read_u16(self.program_counter),
       AddressingMode::AbsoluteX => {
         let pos = self.mem_read_u16(self.program_counter);
-        let addr = pos.wrapping_add(self.register_x as u16) as u16;
-        addr
+        pos.wrapping_add(self.register_x as u16) as u16
       }
       AddressingMode::AbsoluteY => {
         let pos = self.mem_read_u16(self.program_counter);
-        let addr = pos.wrapping_add(self.register_y as u16) as u16;
-        addr
+        pos.wrapping_add(self.register_y as u16) as u16
       }
       AddressingMode::IndirectX => {
         let base = self.mem_read(self.program_counter);
@@ -202,7 +198,7 @@ impl CPU {
         }
         0xAA => {
           // TAX
-          self.register_x = self.accumulator.clone();
+          self.register_x = self.accumulator;
           self.update_negative_and_zero_flags(self.register_x);
         }
         0xE8 => {

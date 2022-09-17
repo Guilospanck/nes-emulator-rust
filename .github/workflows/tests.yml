@@ -1,0 +1,63 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  tests:
+    name: Run Tests
+    env:
+      PROJECT_NAME_UNDERSCORE: nes_emulator_rust
+      CARGO_INCREMENTAL: 0
+      RUSTFLAGS: -Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort
+      RUSTDOCFLAGS: -Cpanic=abort
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout repository
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Setup Toolchain
+    - name: Setup Toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: nightly
+        override: true
+
+    # Build 
+    - name: Build
+      run: cargo build $CARGO_OPTIONS
+
+    # cache
+    - name: Configure cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: test-${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
+
+    # tests and coverage
+    - name: Generate test result and coverage report
+      run: |
+        find . -name '*.gcda' -delete
+        cargo install grcov --force;
+        cargo test $CARGO_OPTIONS --tests;
+        zip -0 ccov.zip `find . \( -name "$PROJECT_NAME_UNDERSCORE*.gc*" \) -print`;
+        grcov ccov.zip -s . -t lcov --llvm --ignore-not-existing --ignore "/*" -o lcov.info;
+
+    # Upload to CodeCov
+    - name: Upload to CodeCov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+        files: ./lcov.info
+        fail_ci_if_error: true
