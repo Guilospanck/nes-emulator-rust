@@ -3,7 +3,7 @@ const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x8000;
 const RESET_INTERRUPT_ADDR: u16 = 0xFFFC;
 
 /// See `studies/addressing.asm` for more info.
-pub enum AddressingModes {
+pub enum AddressingMode {
   Immediate,
   ZeroPage,
   ZeroPageX,
@@ -12,6 +12,7 @@ pub enum AddressingModes {
   AbsoluteY, // Absolute, Y
   IndirectX, // (Indirect, X)
   IndirectY, // (Indirect), Y
+  NoneAddressing,
 }
 
 pub struct CPU {
@@ -87,16 +88,32 @@ impl CPU {
   fn update_negative_and_zero_flags(&mut self, result: u8) {
     // Set Status Flags
     if result == 0 {
-      self.status = self.status | 0b0000_0010; // set zero flag to 1
+      self.status |= 0b0000_0010; // set zero flag to 1
     } else {
-      self.status = self.status & 0b1111_1101; // set zero flag to 0
+      self.status &= 0b1111_1101; // set zero flag to 0
     }
 
     if result & 0b1000_0000 != 0 {
-      self.status = self.status | 0b1000_0000; // set negative flag to 1
+      self.status |= 0b1000_0000; // set negative flag to 1
     } else {
-      self.status = self.status & 0b0111_1111; // set negative flag to 0
+      self.status &= 0b0111_1111; // set negative flag to 0
     }
+  }
+
+  fn get_operand_addr(&self, mode: AddressingMode) -> u16 {
+    match mode {
+      AddressingMode::Immediate => self.program_counter,
+      AddressingMode::ZeroPage => self.mem_read(self.program_counter) as u16,
+      _ => todo!(),
+    }
+  }
+
+  fn lda(&mut self, addressing_mode: AddressingMode) {
+    let operand_addr = self.get_operand_addr(addressing_mode);
+    let param = self.mem_read(operand_addr);
+
+    self.accumulator = param;
+    self.update_negative_and_zero_flags(self.accumulator);
   }
 
   fn run(&mut self) {
@@ -106,14 +123,12 @@ impl CPU {
 
       match op_code {
         0xA9 => {
-          // LDA, immediate addressing mode
-          let param = self.mem_read(self.program_counter);
+          self.lda(AddressingMode::Immediate);
           self.program_counter += 1;
-          self.accumulator = param;
-          self.update_negative_and_zero_flags(self.accumulator);
         }
         0xA5 => {
-          // LDA, Zero Page addressing mode
+          self.lda(AddressingMode::ZeroPage);
+          self.program_counter += 1;
         }
         0xAA => {
           // TAX
