@@ -1,3 +1,5 @@
+use core::panic;
+
 const MEMORY_SIZE: u16 = 0xFFFF;
 const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x8000;
 const RESET_INTERRUPT_ADDR: u16 = 0xFFFC;
@@ -7,6 +9,7 @@ pub enum AddressingMode {
   Immediate,
   ZeroPage,
   ZeroPageX,
+  ZeroPageY,
   Absolute,
   AbsoluteX, // Absolute, X
   AbsoluteY, // Absolute, Y
@@ -100,16 +103,54 @@ impl CPU {
     }
   }
 
+  fn get_indirect_lookup(&self, lookup_addr: u16) -> u16 {
+    let lsb = self.mem_read(lookup_addr);
+    let hsb = self.mem_read(lookup_addr.wrapping_add(1));
+
+    (hsb << 8) as u16 | (lsb as u16)
+  }
+
   fn get_operand_addr(&self, mode: AddressingMode) -> u16 {
     match mode {
       AddressingMode::Immediate => self.program_counter,
       AddressingMode::ZeroPage => self.mem_read(self.program_counter) as u16,
       AddressingMode::ZeroPageX => {
         let pos = self.mem_read(self.program_counter);
-        let addr = pos as u16 + self.register_x as u16;
+        let addr = pos.wrapping_add(self.register_x) as u16;
         addr
-      },
-      _ => todo!(),
+      }
+      AddressingMode::ZeroPageY => {
+        let pos = self.mem_read(self.program_counter);
+        let addr = pos.wrapping_add(self.register_y) as u16;
+        addr
+      }
+      AddressingMode::Absolute => self.mem_read_u16(self.program_counter),
+      AddressingMode::AbsoluteX => {
+        let pos = self.mem_read_u16(self.program_counter);
+        let addr = pos.wrapping_add(self.register_x as u16) as u16;
+        addr
+      }
+      AddressingMode::AbsoluteY => {
+        let pos = self.mem_read_u16(self.program_counter);
+        let addr = pos.wrapping_add(self.register_y as u16) as u16;
+        addr
+      }
+      AddressingMode::IndirectX => {
+        let base = self.mem_read(self.program_counter);
+        let lookup_addr = base.wrapping_add(self.register_x);
+
+        // Indirect lookup
+        self.get_indirect_lookup(lookup_addr as u16)
+      }
+      AddressingMode::IndirectY => {
+        let lookup_addr = self.mem_read(self.program_counter);
+
+        // Indirect Lookup
+        let addr = self.get_indirect_lookup(lookup_addr as u16);
+
+        addr.wrapping_add(self.register_y as u16)
+      }
+      AddressingMode::NoneAddressing => panic!("Mode not known"),
     }
   }
 
@@ -134,11 +175,11 @@ impl CPU {
         0xA5 => {
           self.lda(AddressingMode::ZeroPage);
           self.program_counter += 1;
-        },
+        }
         0xB5 => {
           self.lda(AddressingMode::ZeroPageX);
           self.program_counter += 1;
-        },
+        }
         0xAA => {
           // TAX
           self.register_x = self.accumulator.clone();
