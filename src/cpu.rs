@@ -1,5 +1,6 @@
 const MEMORY_SIZE: u16 = 0xFFFF;
 const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x8000;
+const RESET_INTERRUPT_ADDR: u16 = 0xFFFC;
 
 pub struct CPU {
   pub program_counter: u16,
@@ -33,11 +34,36 @@ impl CPU {
     self.memory[addr as usize] = data;
   }
 
+  fn mem_read_u16(&self, addr: u16) -> u16 {
+    let lsb = self.mem_read(addr) as u16;
+    let hsb = self.mem_read(addr + 1) as u16;
+
+    (hsb << 8) | (lsb as u16)
+  }
+
+  fn mem_write_u16(&mut self, addr: u16, data: u16) {
+    let lsb = (data & 0xFF) as u8;
+    let hsb = (data >> 8) as u8;
+
+    self.mem_write(addr, lsb);
+    self.mem_write(addr + 1, hsb);
+  }
+
+  fn reset(&mut self) {
+    self.stack_pointer = 0;
+    self.accumulator = 0;
+    self.register_x = 0;
+    self.register_y = 0;
+    self.status = 0b0000_0000;
+    self.program_counter = self.mem_read_u16(RESET_INTERRUPT_ADDR);
+  }
+
   fn load(&mut self, program: Vec<u8>) {
     self.memory[PROGRAM_ROM_MEMORY_ADDRESS_START as usize
       ..(PROGRAM_ROM_MEMORY_ADDRESS_START as usize + program.len())]
       .copy_from_slice(&program[..]); // puts the program into memory
-    self.program_counter = PROGRAM_ROM_MEMORY_ADDRESS_START;
+    
+    self.mem_write_u16(RESET_INTERRUPT_ADDR, PROGRAM_ROM_MEMORY_ADDRESS_START);
   }
 
   fn update_negative_and_zero_flags(&mut self, result: u8) {
@@ -89,6 +115,7 @@ impl CPU {
 
   pub fn load_and_run(&mut self, program: Vec<u8>) {
     self.load(program);
+    self.reset();
     self.run();
   }
 }
