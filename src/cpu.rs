@@ -2,6 +2,18 @@ const MEMORY_SIZE: u16 = 0xFFFF;
 const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x8000;
 const RESET_INTERRUPT_ADDR: u16 = 0xFFFC;
 
+/// See `studies/addressing.asm` for more info.
+pub enum AddressingModes {
+  Immediate,
+  ZeroPage,
+  ZeroPageX,
+  Absolute,
+  AbsoluteX, // Absolute, X
+  AbsoluteY, // Absolute, Y
+  IndirectX, // (Indirect, X)
+  IndirectY, // (Indirect), Y
+}
+
 pub struct CPU {
   pub program_counter: u16,
   pub status: u8,
@@ -12,8 +24,8 @@ pub struct CPU {
   memory: [u8; MEMORY_SIZE as usize],
 }
 
-impl CPU {
-  pub fn new() -> Self {
+impl Default for CPU {
+  fn default() -> Self {
     let memory: [u8; MEMORY_SIZE as usize] = [0; MEMORY_SIZE as usize];
     Self {
       program_counter: 0,
@@ -24,6 +36,12 @@ impl CPU {
       register_y: 0,
       memory,
     }
+  }
+}
+
+impl CPU {
+  pub fn new() -> Self {
+    Self::default()
   }
 
   fn mem_read(&self, addr: u16) -> u8 {
@@ -62,7 +80,7 @@ impl CPU {
     self.memory[PROGRAM_ROM_MEMORY_ADDRESS_START as usize
       ..(PROGRAM_ROM_MEMORY_ADDRESS_START as usize + program.len())]
       .copy_from_slice(&program[..]); // puts the program into memory
-    
+
     self.mem_write_u16(RESET_INTERRUPT_ADDR, PROGRAM_ROM_MEMORY_ADDRESS_START);
   }
 
@@ -88,11 +106,14 @@ impl CPU {
 
       match op_code {
         0xA9 => {
-          // LDA
+          // LDA, immediate addressing mode
           let param = self.mem_read(self.program_counter);
           self.program_counter += 1;
           self.accumulator = param;
           self.update_negative_and_zero_flags(self.accumulator);
+        }
+        0xA5 => {
+          // LDA, Zero Page addressing mode
         }
         0xAA => {
           // TAX
