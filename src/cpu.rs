@@ -52,7 +52,7 @@ impl CPU {
     self.memory[addr as usize]
   }
 
-  fn mem_write(&mut self, addr: u16, data: u8) {
+  pub fn mem_write(&mut self, addr: u16, data: u8) {
     self.memory[addr as usize] = data;
   }
 
@@ -63,7 +63,7 @@ impl CPU {
     (hsb << 8) | (lsb as u16)
   }
 
-  fn mem_write_u16(&mut self, addr: u16, data: u16) {
+  pub fn mem_write_u16(&mut self, addr: u16, data: u16) {
     let lsb = (data & 0xFF) as u8;
     let hsb = (data >> 8) as u8;
 
