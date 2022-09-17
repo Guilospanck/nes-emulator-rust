@@ -1,4 +1,6 @@
-#[derive(Default)]
+const MEMORY_SIZE: u16 = 0xFFFF;
+const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x8000;
+
 pub struct CPU {
   pub program_counter: u16,
   pub status: u8,
@@ -6,10 +8,12 @@ pub struct CPU {
   pub stack_pointer: u8,
   pub register_x: u8,
   pub register_y: u8,
+  memory: [u8; MEMORY_SIZE as usize],
 }
 
 impl CPU {
   pub fn new() -> Self {
+    let memory: [u8; MEMORY_SIZE as usize] = [0; MEMORY_SIZE as usize];
     Self {
       program_counter: 0,
       status: 0,
@@ -17,7 +21,23 @@ impl CPU {
       stack_pointer: 0,
       register_x: 0,
       register_y: 0,
+      memory,
     }
+  }
+
+  fn mem_read(&self, addr: u16) -> u8 {
+    self.memory[addr as usize]
+  }
+
+  fn mem_write(&mut self, addr: u16, data: u8) {
+    self.memory[addr as usize] = data;
+  }
+
+  fn load(&mut self, program: Vec<u8>) {
+    self.memory[PROGRAM_ROM_MEMORY_ADDRESS_START as usize
+      ..(PROGRAM_ROM_MEMORY_ADDRESS_START as usize + program.len())]
+      .copy_from_slice(&program[..]); // puts the program into memory
+    self.program_counter = PROGRAM_ROM_MEMORY_ADDRESS_START;
   }
 
   fn update_negative_and_zero_flags(&mut self, result: u8) {
@@ -35,17 +55,15 @@ impl CPU {
     }
   }
 
-  pub fn interpret(&mut self, program: Vec<u8>) {
-    self.program_counter = 0;
-
+  fn run(&mut self) {
     loop {
-      let op_code = program[self.program_counter as usize];
+      let op_code = self.mem_read(self.program_counter);
       self.program_counter += 1;
 
       match op_code {
         0xA9 => {
           // LDA
-          let param = program[self.program_counter as usize];
+          let param = self.mem_read(self.program_counter);
           self.program_counter += 1;
           self.accumulator = param;
           self.update_negative_and_zero_flags(self.accumulator);
@@ -67,5 +85,10 @@ impl CPU {
         _ => todo!(),
       }
     }
+  }
+
+  pub fn load_and_run(&mut self, program: Vec<u8>) {
+    self.load(program);
+    self.run();
   }
 }

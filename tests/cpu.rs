@@ -8,7 +8,7 @@ fn test_should_get_lda_immediate_instruction_and_brk_and_set_status_flags_proper
   let mut cpu = CPU::new();
 
   // act
-  cpu.interpret(program);
+  cpu.load_and_run(program);
 
   // assert
   assert_eq!(cpu.status, expected_status_flags);
@@ -22,7 +22,7 @@ fn test_should_get_lda_immediate_instruction_and_brk_and_set_zero_status_flag() 
   let mut cpu = CPU::new();
 
   // act
-  cpu.interpret(program);
+  cpu.load_and_run(program);
 
   // assert
   assert_eq!(cpu.status, expected_status_flags);
@@ -37,7 +37,7 @@ fn test_0xaa_tax_should_move_acc_to_x() {
   let program = vec![0xAA, 0x00]; // TAX; BRK
 
   // act
-  cpu.interpret(program);
+  cpu.load_and_run(program);
 
   // assert
   assert_eq!(cpu.status, 0);
@@ -53,7 +53,7 @@ fn test_0xe8_inx_should_increment_x_register() {
   let program = vec![0xE8, 0x00]; // INX; BRK
 
   // act
-  cpu.interpret(program);
+  cpu.load_and_run(program);
 
   // assert
   assert_eq!(cpu.status, 0x00);
@@ -68,7 +68,7 @@ fn test_0xe8_inx_should_overflow_x_register() {
   let program = vec![0xE8, 0xE8, 0x00]; // INX; INX; BRK
 
   // act
-  cpu.interpret(program);
+  cpu.load_and_run(program);
 
   // assert
   assert_eq!(cpu.status, 0x00);
