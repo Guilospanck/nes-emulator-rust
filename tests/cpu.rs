@@ -43,7 +43,7 @@ fn test_0xa5_lda_zeropage_mode_should_get_instruction_and_set_status_flags_prope
 }
 
 #[test]
-fn test_0xb5_lda_zeropage_mode_should_get_instruction_and_set_status_flags_properly() { // TODO: improve it after implementing STA, STX, STY
+fn test_0xb5_lda_zeropage_x_mode_should_get_instruction_and_set_status_flags_properly() { // TODO: improve it after implementing STA, STX, STY
   // arrange
   let mut cpu = CPU::new();
   let program = vec![0xB5, 0x33, 0x00]; // LDA $33, X; BRK
@@ -56,6 +56,75 @@ fn test_0xb5_lda_zeropage_mode_should_get_instruction_and_set_status_flags_prope
   assert_eq!(cpu.accumulator, 0x00);
 }
 
+#[test]
+fn test_0xad_lda_absolute_mode_should_get_instruction_and_set_status_flags_properly() { // TODO: improve it after implementing STA, STX, STY
+  // arrange
+  let mut cpu = CPU::new();
+  let program = vec![0xAD, 0x33, 0xC4, 0x00]; // LDA $C433; BRK
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, 0b0000_0010); // zero status flag set
+  assert_eq!(cpu.accumulator, 0x00);
+}
+
+#[test]
+fn test_0xbd_lda_absolute_x_mode_should_get_instruction_and_set_status_flags_properly() { // TODO: improve it after implementing STA, STX, STY
+  // arrange
+  let mut cpu = CPU::new();
+  let program = vec![0xBD, 0x33, 0xC4, 0x00]; // LDA $C433, X; BRK
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, 0b0000_0010); // zero status flag set
+  assert_eq!(cpu.accumulator, 0x00);
+}
+
+#[test]
+fn test_0xb9_lda_absolute_y_mode_should_get_instruction_and_set_status_flags_properly() { // TODO: improve it after implementing STA, STX, STY
+  // arrange
+  let mut cpu = CPU::new();
+  let program = vec![0xB9, 0x33, 0xC4, 0x00]; // LDA $C433, Y; BRK
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, 0b0000_0010); // zero status flag set
+  assert_eq!(cpu.accumulator, 0x00);
+}
+
+#[test]
+fn test_0xa1_lda_indirect_x_mode_should_get_instruction_and_set_status_flags_properly() { // TODO: improve it after implementing STA, STX, STY
+  // arrange
+  let mut cpu = CPU::new();
+  let program = vec![0xA1, 0x33, 0x00]; // LDA ($33, X); BRK
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, 0b0000_0010); // zero status flag set
+  assert_eq!(cpu.accumulator, 0x00);
+}
+
+#[test]
+fn test_0xb1_lda_indirect_y_mode_should_get_instruction_and_set_status_flags_properly() { // TODO: improve it after implementing STA, STX, STY
+  // arrange
+  let mut cpu = CPU::new();
+  let program = vec![0xB1, 0x33, 0x00]; // LDA ($33), Y; BRK
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, 0b0000_0010); // zero status flag set
+  assert_eq!(cpu.accumulator, 0x00);
+}
 
 #[test]
 fn test_0xaa_tax_should_move_acc_to_x() {

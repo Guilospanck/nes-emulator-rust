@@ -107,7 +107,7 @@ impl CPU {
     let lsb = self.mem_read(lookup_addr);
     let hsb = self.mem_read(lookup_addr.wrapping_add(1));
 
-    (hsb << 8) as u16 | (lsb as u16)
+    (hsb as u16) << 8  | (lsb as u16)
   }
 
   fn get_operand_addr(&self, mode: AddressingMode) -> u16 {
@@ -178,6 +178,26 @@ impl CPU {
         }
         0xB5 => {
           self.lda(AddressingMode::ZeroPageX);
+          self.program_counter += 1;
+        }
+        0xAD => {
+          self.lda(AddressingMode::Absolute);
+          self.program_counter += 2;
+        }
+        0xBD => {
+          self.lda(AddressingMode::AbsoluteX);
+          self.program_counter += 2;
+        }
+        0xB9 => {
+          self.lda(AddressingMode::AbsoluteY);
+          self.program_counter += 2;
+        }
+        0xA1 => {
+          self.lda(AddressingMode::IndirectX);
+          self.program_counter += 1;
+        }
+        0xB1 => {
+          self.lda(AddressingMode::IndirectY);
           self.program_counter += 1;
         }
         0xAA => {
