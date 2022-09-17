@@ -5,7 +5,7 @@ pub struct CPU {
   pub accumulator: u8,
   pub stack_pointer: u8,
   pub register_x: u8,
-  pub register_y: u8
+  pub register_y: u8,
 }
 
 impl CPU {
@@ -16,19 +16,19 @@ impl CPU {
       accumulator: 0,
       stack_pointer: 0,
       register_x: 0,
-      register_y: 0
+      register_y: 0,
     }
   }
 
-  fn update_negative_and_zero_flags(&mut self) {
+  fn update_negative_and_zero_flags(&mut self, result: u8) {
     // Set Status Flags
-    if self.accumulator == 0 {
+    if result == 0 {
       self.status = self.status | 0b0000_0010; // set zero flag to 1
     } else {
       self.status = self.status & 0b1111_1101; // set zero flag to 0
     }
 
-    if self.accumulator & 0b1000_0000 != 0 {
+    if result & 0b1000_0000 != 0 {
       self.status = self.status | 0b1000_0000; // set negative flag to 1
     } else {
       self.status = self.status & 0b0111_1111; // set negative flag to 0
@@ -41,27 +41,30 @@ impl CPU {
     loop {
       let op_code = program[self.program_counter as usize];
       self.program_counter += 1;
-  
+
       match op_code {
-        0xA9 => { // LDA
+        0xA9 => {
+          // LDA
           let param = program[self.program_counter as usize];
           self.program_counter += 1;
-
           self.accumulator = param;
-
-          self.update_negative_and_zero_flags();
-
-        },
-        0xAA => { // TAX
+          self.update_negative_and_zero_flags(self.accumulator);
+        }
+        0xAA => {
+          // TAX
           self.register_x = self.accumulator.clone();
-
-          self.update_negative_and_zero_flags();
-
-        },
-        0x00 => { // BRK
+          self.update_negative_and_zero_flags(self.register_x);
+        }
+        0xE8 => {
+          // INX
+          self.register_x = self.register_x.wrapping_add(1);
+          self.update_negative_and_zero_flags(self.register_x);
+        }
+        0x00 => {
+          // BRK
           return;
-        },
-        _ => todo!()
+        }
+        _ => todo!(),
       }
     }
   }
