@@ -8,6 +8,7 @@ const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x8000;
 const RESET_INTERRUPT_ADDR: u16 = 0xFFFC;
 
 /// See `studies/addressing.asm` for more info.
+#[derive(Debug, PartialEq, Eq)]
 pub enum AddressingMode {
   Immediate,
   ZeroPage,

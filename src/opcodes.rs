@@ -4,6 +4,7 @@ use lazy_static::lazy_static;
 
 use crate::cpu::AddressingMode;
 
+#[derive(Debug)]
 pub struct Opcode {
   pub code: u8,
   pub name: &'static str,
