@@ -1,4 +1,7 @@
 use core::panic;
+use std::collections::HashMap;
+
+use crate::opcodes;
 
 const MEMORY_SIZE: u16 = 0xFFFF;
 const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x8000;
@@ -110,7 +113,7 @@ impl CPU {
     (hsb as u16) << 8 | (lsb as u16)
   }
 
-  fn get_operand_addr(&self, mode: AddressingMode) -> u16 {
+  fn get_operand_addr(&self, mode: &AddressingMode) -> u16 {
     match mode {
       AddressingMode::Immediate => self.program_counter,
       AddressingMode::ZeroPage => self.mem_read(self.program_counter) as u16,
@@ -150,7 +153,7 @@ impl CPU {
     }
   }
 
-  fn lda(&mut self, addressing_mode: AddressingMode) {
+  fn lda(&mut self, addressing_mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(addressing_mode);
     let param = self.mem_read(operand_addr);
 
@@ -158,93 +161,48 @@ impl CPU {
     self.update_negative_and_zero_flags(self.accumulator);
   }
 
-  fn sta(&mut self, addressing_mode: AddressingMode) {
+  fn sta(&mut self, addressing_mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(addressing_mode);
-
     self.mem_write(operand_addr, self.accumulator);
   }
 
-  fn run(&mut self) {
-    loop {
-      let op_code = self.mem_read(self.program_counter);
-      self.program_counter += 1;
+  fn tax(&mut self) {
+    self.register_x = self.accumulator;
+    self.update_negative_and_zero_flags(self.register_x);
+  }
 
-      match op_code {
-        0xA9 => {
-          self.lda(AddressingMode::Immediate);
-          self.program_counter += 1;
+  fn inx(&mut self) {
+    self.register_x = self.register_x.wrapping_add(1);
+    self.update_negative_and_zero_flags(self.register_x);
+  }
+
+  fn run(&mut self) {
+    let all_op_codes: &HashMap<u8, &'static opcodes::Opcode> = &(*opcodes::OPCODES_MAP);
+
+    loop {
+      let code = self.mem_read(self.program_counter);
+      self.program_counter += 1;
+      let current_program_counter_state = self.program_counter;
+
+      let current_opcode = all_op_codes
+        .get(&code)
+        .unwrap_or_else(|| panic!("OP code {:x} not found", code));
+
+      match code {
+        0xA9 | 0xA5 | 0xB5 | 0xAD | 0xBD | 0xB9 | 0xA1 | 0xB1 => {
+          self.lda(&current_opcode.addressing_mode);
         }
-        0xA5 => {
-          self.lda(AddressingMode::ZeroPage);
-          self.program_counter += 1;
+        0x85 | 0x95 | 0x8D | 0x9D | 0x99 | 0x81 | 0x91 => {
+          self.sta(&current_opcode.addressing_mode);
         }
-        0xB5 => {
-          self.lda(AddressingMode::ZeroPageX);
-          self.program_counter += 1;
-        }
-        0xAD => {
-          self.lda(AddressingMode::Absolute);
-          self.program_counter += 2;
-        }
-        0xBD => {
-          self.lda(AddressingMode::AbsoluteX);
-          self.program_counter += 2;
-        }
-        0xB9 => {
-          self.lda(AddressingMode::AbsoluteY);
-          self.program_counter += 2;
-        }
-        0xA1 => {
-          self.lda(AddressingMode::IndirectX);
-          self.program_counter += 1;
-        }
-        0xB1 => {
-          self.lda(AddressingMode::IndirectY);
-          self.program_counter += 1;
-        }
-        0x85 => {
-          self.sta(AddressingMode::ZeroPage);
-          self.program_counter += 1;
-        }
-        0x95 => {
-          self.sta(AddressingMode::ZeroPageX);
-          self.program_counter += 1;
-        }
-        0x8D => {
-          self.sta(AddressingMode::Absolute);
-          self.program_counter += 2;
-        }
-        0x9D => {
-          self.sta(AddressingMode::AbsoluteX);
-          self.program_counter += 2;
-        }
-        0x99 => {
-          self.sta(AddressingMode::AbsoluteY);
-          self.program_counter += 2;
-        }
-        0x81 => {
-          self.sta(AddressingMode::IndirectX);
-          self.program_counter += 1;
-        }
-        0x91 => {
-          self.sta(AddressingMode::IndirectY);
-          self.program_counter += 1;
-        }
-        0xAA => {
-          // TAX
-          self.register_x = self.accumulator;
-          self.update_negative_and_zero_flags(self.register_x);
-        }
-        0xE8 => {
-          // INX
-          self.register_x = self.register_x.wrapping_add(1);
-          self.update_negative_and_zero_flags(self.register_x);
-        }
-        0x00 => {
-          // BRK
-          return;
-        }
+        0xAA => self.tax(),
+        0xE8 => self.inx(),
+        0x00 => return,
         _ => todo!(),
+      }
+
+      if current_program_counter_state == self.program_counter {
+        self.program_counter += (current_opcode.bytes - 1) as u16;
       }
     }
   }
