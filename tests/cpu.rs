@@ -424,3 +424,17 @@ fn test_0xe8_inx_should_overflow_x_register() {
   assert_eq!(cpu.status, 0x00);
   assert_eq!(cpu.register_x, 0x01);
 }
+
+// Should fail
+#[test]
+#[should_panic(expected = "OP code ff not found")]
+fn test_run_should_panic_unknown_opcode(){
+  // arrange
+  let mut cpu = CPU::new();
+  let program = vec![0xFF]; // wrong opcode
+  
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+}
