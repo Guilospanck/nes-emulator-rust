@@ -48,7 +48,7 @@ impl CPU {
     Self::default()
   }
 
-  fn mem_read(&self, addr: u16) -> u8 {
+  pub fn mem_read(&self, addr: u16) -> u8 {
     self.memory[addr as usize]
   }
 
@@ -56,7 +56,7 @@ impl CPU {
     self.memory[addr as usize] = data;
   }
 
-  fn mem_read_u16(&self, addr: u16) -> u16 {
+  pub fn mem_read_u16(&self, addr: u16) -> u16 {
     let lsb = self.mem_read(addr) as u16;
     let hsb = self.mem_read(addr + 1) as u16;
 
@@ -158,6 +158,12 @@ impl CPU {
     self.update_negative_and_zero_flags(self.accumulator);
   }
 
+  fn sta(&mut self, addressing_mode: AddressingMode) {
+    let operand_addr = self.get_operand_addr(addressing_mode);
+
+    self.mem_write(operand_addr, self.accumulator);
+  }
+
   fn run(&mut self) {
     loop {
       let op_code = self.mem_read(self.program_counter);
@@ -194,6 +200,34 @@ impl CPU {
         }
         0xB1 => {
           self.lda(AddressingMode::IndirectY);
+          self.program_counter += 1;
+        }
+        0x85 => {
+          self.sta(AddressingMode::ZeroPage);
+          self.program_counter += 1;
+        }
+        0x95 => {
+          self.sta(AddressingMode::ZeroPageX);
+          self.program_counter += 1;
+        }
+        0x8D => {
+          self.sta(AddressingMode::Absolute);
+          self.program_counter += 2;
+        }
+        0x9D => {
+          self.sta(AddressingMode::AbsoluteX);
+          self.program_counter += 2;
+        }
+        0x99 => {
+          self.sta(AddressingMode::AbsoluteY);
+          self.program_counter += 2;
+        }
+        0x81 => {
+          self.sta(AddressingMode::IndirectX);
+          self.program_counter += 1;
+        }
+        0x91 => {
+          self.sta(AddressingMode::IndirectY);
           self.program_counter += 1;
         }
         0xAA => {
