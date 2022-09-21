@@ -167,6 +167,16 @@ impl CPU {
     self.mem_write(operand_addr, self.accumulator);
   }
 
+  fn stx(&mut self, addressing_mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(addressing_mode);
+    self.mem_write(operand_addr, self.register_x);    
+  }
+
+  fn sty(&mut self, addressing_mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(addressing_mode);
+    self.mem_write(operand_addr, self.register_y);    
+  }
+
   fn tax(&mut self) {
     self.register_x = self.accumulator;
     self.update_negative_and_zero_flags(self.register_x);
@@ -195,6 +205,12 @@ impl CPU {
         }
         0x85 | 0x95 | 0x8D | 0x9D | 0x99 | 0x81 | 0x91 => {
           self.sta(&current_opcode.addressing_mode);
+        }
+        0x86 | 0x96 | 0x8E => {
+          self.stx(&current_opcode.addressing_mode);
+        }
+        0x84 | 0x94 | 0x8C => {
+          self.sty(&current_opcode.addressing_mode);
         }
         0xAA => self.tax(),
         0xE8 => self.inx(),
