@@ -244,6 +244,99 @@ fn test_0xb1_lda_indirect_x_mode_should_get_status_and_value_properly() {
   assert_eq!(cpu.accumulator, expected_value);
 }
 
+// --------------- LDX --------------------
+#[test]
+fn test_0xa2_ldx_immediate_mode_should_get_instruction_and_set_status_flags_properly() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let expected_value = 0x10;
+  let program = vec![0xA2, expected_value, 0x00]; // LDX #$0x10  BRK
+  let mut cpu = CPU::new();
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.register_x, expected_value);
+}
+
+#[test]
+fn test_0xa6_ldx_zeropage_mode_should_get_instruction_and_set_status_flags_properly() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let addr = 0x10u8;
+  let expected_value = 0x10;
+  let program = vec![0xA6, addr, 0x00]; // LDX $10  BRK
+  let mut cpu = CPU::new();
+  cpu.mem_write(addr as u16, expected_value);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.register_x, expected_value);
+}
+
+#[test]
+fn test_0xb6_ldx_zeropage_y_mode_should_get_instruction_and_set_status_flags_properly() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let addr = 0x10u8;
+  let expected_value = 0x10;
+  let program = vec![0xB6, addr, 0x00]; // LDX $10, Y;  BRK
+  let mut cpu = CPU::new();
+  cpu.mem_write(addr as u16, expected_value);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.register_x, expected_value);
+}
+
+#[test]
+fn test_0xae_ldx_absolute_mode_should_get_instruction_and_set_status_flags_properly() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let addr_lsb = 0x07u8;
+  let addr_msb = 0x03u8;
+  let full_addr = 0x0307u16;
+  let expected_value = 0x10;
+  let program = vec![0xAE, addr_lsb, addr_msb, 0x00]; // LDX $0307;  BRK
+  let mut cpu = CPU::new();
+  cpu.mem_write(full_addr, expected_value);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.register_x, expected_value);
+}
+
+#[test]
+fn test_0xae_ldx_absolute_y_mode_should_get_instruction_and_set_status_flags_properly() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let addr_lsb = 0x07u8;
+  let addr_msb = 0x03u8;
+  let full_addr = 0x0307u16;
+  let expected_value = 0x10;
+  let program = vec![0xAE, addr_lsb, addr_msb, 0x00]; // LDX $0307, Y;  BRK
+  let mut cpu = CPU::new();
+  cpu.mem_write(full_addr, expected_value);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.register_x, expected_value);
+}
+
 // --------------- STA ----------------------
 
 #[test]
@@ -378,7 +471,27 @@ fn test_0x91_sta_indirect_y_mode_should_store_acc_at_the_right_addr() {
   assert_eq!(cpu.mem_read(expected_addr), expected_value);
 }
 
-// ---------------------------------------------
+// ------------------- STX -------------------
+// #[test]
+// fn test_0x86_stx_zeropage_mode_should_store_x_register_at_the_right_addr(){
+//   // arrange
+//   let expected_status_flags = 0b0000_0000;
+//   let expected_value = 0x11;
+//   let addr = 0x33_u8;
+//   let program = vec![0xA9, expected_value, 0x91, addr, 0x00]; // LDA #$0x11; STA ($33), Y;  BRK
+//   let mut cpu = CPU::new();
+//   cpu.mem_write(addr as u16, 0x05);
+//   cpu.mem_write(addr.wrapping_add(1) as u16, 0x06);
+//   let expected_addr = 0x0605_u16;
+
+//   // act
+//   cpu.load_and_run(program);
+
+//   // assert
+//   assert_eq!(cpu.status, expected_status_flags);
+//   assert_eq!(cpu.accumulator, expected_value);
+//   assert_eq!(cpu.mem_read(expected_addr), expected_value);
+// }
 
 #[test]
 fn test_0xaa_tax_should_move_acc_to_x() {
