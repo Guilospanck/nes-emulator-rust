@@ -1,8 +1,22 @@
 use nes_emulator_rust::cpu::CPU;
 
-/// TODO
-/// Addressing Modes that use X and Y (ZeroPage, Absolute and Indirect)
-/// Must be improved when LDX (or STX) and LDY (or STY) are created.
+// --------------- LDA --------------------
+#[test]
+fn test_0x69_adc_immediate_mode_should_add_value_to_accumulator() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let value = 0x11;
+  let expected_value = 0x22;
+  let program = vec![0x69, value, 0x69, value, 0x00]; // ADC #$11; ADC #$11;  BRK
+  let mut cpu = CPU::new();
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, expected_value);
+}
 
 // --------------- LDA --------------------
 

@@ -107,6 +107,13 @@ impl CPU {
     }
   }
 
+  fn update_carry_and_overflow_flags(&mut self, result: Option<u8>) {
+    match result {
+      Some(_e) => self.status &= 0b1011_1110,
+      None => self.status |= 0b0100_0001,
+    }
+  }
+
   fn get_indirect_lookup(&self, lookup_addr: u16) -> u16 {
     let lsb = self.mem_read(lookup_addr);
     let hsb = self.mem_read(lookup_addr.wrapping_add(1));
@@ -154,6 +161,16 @@ impl CPU {
     }
   }
 
+  fn adc(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+    let param = self.mem_read(operand_addr);
+
+    self.accumulator += param;
+
+    // check carry flag
+    self.update_carry_and_overflow_flags(self.accumulator.checked_add(param));    
+  }
+
   fn lda(&mut self, addressing_mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(addressing_mode);
     let param = self.mem_read(operand_addr);
@@ -185,12 +202,12 @@ impl CPU {
 
   fn stx(&mut self, addressing_mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(addressing_mode);
-    self.mem_write(operand_addr, self.register_x);    
+    self.mem_write(operand_addr, self.register_x);
   }
 
   fn sty(&mut self, addressing_mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(addressing_mode);
-    self.mem_write(operand_addr, self.register_y);    
+    self.mem_write(operand_addr, self.register_y);
   }
 
   fn tax(&mut self) {
@@ -216,6 +233,9 @@ impl CPU {
         .unwrap_or_else(|| panic!("OP code {:x} not found", code));
 
       match code {
+        0x69 | 0x65 | 0x75 | 0x6D | 0x7D | 0x79 | 0x61 | 0x71 => {
+          self.adc(&current_opcode.addressing_mode);
+        }
         0xA9 | 0xA5 | 0xB5 | 0xAD | 0xBD | 0xB9 | 0xA1 | 0xB1 => {
           self.lda(&current_opcode.addressing_mode);
         }
