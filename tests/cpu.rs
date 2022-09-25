@@ -62,7 +62,15 @@ fn test_0x75_adc_zeropage_x_mode_should_add_value_to_accumulator() {
   let expected_value = 0x22;
   let zeropage_addr = 0x33u8;
   let x_register_value = 0x03u8;
-  let program = vec![0xA2, x_register_value, 0x75, zeropage_addr, 0x75, zeropage_addr, 0x00]; // LDX #$03; ADC $33, X; ADC $33, X;  BRK
+  let program = vec![
+    0xA2,
+    x_register_value,
+    0x75,
+    zeropage_addr,
+    0x75,
+    zeropage_addr,
+    0x00,
+  ]; // LDX #$03; ADC $33, X; ADC $33, X;  BRK
   let mut cpu = CPU::new();
   cpu.mem_write((zeropage_addr.wrapping_add(x_register_value)) as u16, value);
 
@@ -83,7 +91,15 @@ fn test_0x6d_adc_absolute_mode_should_add_value_to_accumulator() {
   let lsb_absolute_addr = 0x33u8;
   let msb_absolute_addr = 0x44u8;
   let absolute_addr = 0x4433u16;
-  let program = vec![0x6D, lsb_absolute_addr, msb_absolute_addr, 0x6D, lsb_absolute_addr, msb_absolute_addr, 0x00]; // ADC $4433; ADC $4433;  BRK
+  let program = vec![
+    0x6D,
+    lsb_absolute_addr,
+    msb_absolute_addr,
+    0x6D,
+    lsb_absolute_addr,
+    msb_absolute_addr,
+    0x00,
+  ]; // ADC $4433; ADC $4433;  BRK
   let mut cpu = CPU::new();
   cpu.mem_write(absolute_addr, value);
 
@@ -105,7 +121,17 @@ fn test_0x7d_adc_absolute_x_mode_should_add_value_to_accumulator() {
   let msb_absolute_addr = 0x44u8;
   let absolute_addr = 0x4433u16;
   let x_register_value = 0x03u8;
-  let program = vec![0xA2, x_register_value, 0x7D, lsb_absolute_addr, msb_absolute_addr, 0x7D, lsb_absolute_addr, msb_absolute_addr, 0x00]; // LDX #$03; ADC $4433, X; ADC $4433, X;  BRK
+  let program = vec![
+    0xA2,
+    x_register_value,
+    0x7D,
+    lsb_absolute_addr,
+    msb_absolute_addr,
+    0x7D,
+    lsb_absolute_addr,
+    msb_absolute_addr,
+    0x00,
+  ]; // LDX #$03; ADC $4433, X; ADC $4433, X;  BRK
   let mut cpu = CPU::new();
   cpu.mem_write_u16(absolute_addr + x_register_value as u16, value);
 
@@ -127,7 +153,17 @@ fn test_0x79_adc_absolute_y_mode_should_add_value_to_accumulator() {
   let msb_absolute_addr = 0x44u8;
   let absolute_addr = 0x4433u16;
   let y_register_value = 0x03u8;
-  let program = vec![0xA0, y_register_value, 0x79, lsb_absolute_addr, msb_absolute_addr, 0x79, lsb_absolute_addr, msb_absolute_addr, 0x00]; // LDY #$03; ADC $4433, Y; ADC $4433, Y;  BRK
+  let program = vec![
+    0xA0,
+    y_register_value,
+    0x79,
+    lsb_absolute_addr,
+    msb_absolute_addr,
+    0x79,
+    lsb_absolute_addr,
+    msb_absolute_addr,
+    0x00,
+  ]; // LDY #$03; ADC $4433, Y; ADC $4433, Y;  BRK
   let mut cpu = CPU::new();
   cpu.mem_write_u16(absolute_addr + y_register_value as u16, value);
 
@@ -147,7 +183,15 @@ fn test_0x61_adc_indirect_x_mode_should_add_value_to_accumulator() {
   let expected_value = 0x22;
   let zeropage_addr = 0x33u8;
   let x_register_value = 0x03u8;
-  let program = vec![0xA2, x_register_value, 0x61, zeropage_addr, 0x61, zeropage_addr, 0x00]; // LDX #$03; ADC ($33, X); ADC ($33, X);  BRK
+  let program = vec![
+    0xA2,
+    x_register_value,
+    0x61,
+    zeropage_addr,
+    0x61,
+    zeropage_addr,
+    0x00,
+  ]; // LDX #$03; ADC ($33, X); ADC ($33, X);  BRK
   let mut cpu = CPU::new();
   // the lookup will de indirected to (zeropage + x = $33 + #$03 = $0036). Then, it
   // will see that there there is the values: $0036 = #$44; $0037 = #$00 => then the address
@@ -171,12 +215,20 @@ fn test_0x71_adc_indirect_x_mode_should_add_value_to_accumulator() {
   let expected_value = 0x22;
   let zeropage_addr = 0x33u8;
   let y_register_value = 0x03u8;
-  let program = vec![0xA0, y_register_value, 0x71, zeropage_addr, 0x71, zeropage_addr, 0x00]; // LDY #$03; ADC ($33), Y; ADC ($33), Y;  BRK
+  let program = vec![
+    0xA0,
+    y_register_value,
+    0x71,
+    zeropage_addr,
+    0x71,
+    zeropage_addr,
+    0x00,
+  ]; // LDY #$03; ADC ($33), Y; ADC ($33), Y;  BRK
   let mut cpu = CPU::new();
   // Gets the address from the zeropage ($0033)
   cpu.mem_write(zeropage_addr as u16, 0x43); // Indirect lookup: $0033 = 0x43, $0034 = 0x00 => $0043
-  // now, with this new address ($0043), we're going to add the y_register and then
-  // look for the value that will exists at this new addr ($0043 + Y = $0046)
+                                             // now, with this new address ($0043), we're going to add the y_register and then
+                                             // look for the value that will exists at this new addr ($0043 + Y = $0046)
   cpu.mem_write(0x0046u16, value);
 
   // act
@@ -195,7 +247,7 @@ fn test_0x29_and_immediate_mode_should_and_compare_value_to_accumulator() {
   let initial_accumulator_value = 0x22u8;
   let value_to_and = 0x03u8;
   let expected_final_value = 0x02u8;
-  let program = vec![0xA9, initial_accumulator_value, 0x29, value_to_and, 0x00]; // LDA #$10; AND #$04;  BRK
+  let program = vec![0xA9, initial_accumulator_value, 0x29, value_to_and, 0x00]; // LDA #$22; AND #$03;  BRK
   let mut cpu = CPU::new();
 
   // act
@@ -221,6 +273,208 @@ fn test_0x29_and_immediate_mode_should_and_compare_value_to_accumulator_and_set_
   // assert
   assert_eq!(cpu.status, expected_status_flags);
   assert_eq!(cpu.accumulator, 0);
+}
+
+#[test]
+fn test_0x25_and_zeropage_mode_should_and_compare_value_to_accumulator() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let initial_accumulator_value = 0x22u8;
+  let address_to_and = 0x44u8;
+  let value_to_and = 0x03u8;
+  let expected_final_value = 0x02u8;
+  let program = vec![0xA9, initial_accumulator_value, 0x25, address_to_and, 0x00]; // LDA #$22; AND $44;  BRK
+  let mut cpu = CPU::new();
+  cpu.mem_write(address_to_and as u16, value_to_and);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, expected_final_value);
+}
+
+#[test]
+fn test_0x35_and_zeropage_x_mode_should_and_compare_value_to_accumulator() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let initial_accumulator_value = 0x22u8;
+  let address_to_and = 0x44u8;
+  let value_to_and = 0x03u8;
+  let expected_final_value = 0x02u8;
+  let x_register_value = 0x05u8;
+  let program = vec![
+    0xA2,
+    x_register_value,
+    0xA9,
+    initial_accumulator_value,
+    0x35,
+    address_to_and,
+    0x00,
+  ]; // LDX #$05; LDA #$22; AND $44, X;  BRK
+  let mut cpu = CPU::new();
+  cpu.mem_write((address_to_and + x_register_value) as u16, value_to_and);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, expected_final_value);
+}
+
+#[test]
+fn test_0x2d_and_absolute_mode_should_and_compare_value_to_accumulator() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let initial_accumulator_value = 0x22u8;
+  let lsb_address_to_and = 0x44u8;
+  let msb_address_to_and = 0x22u8;
+  let address_to_and = 0x2244u16;
+  let value_to_and = 0x03u8;
+  let expected_final_value = 0x02u8;
+  let program = vec![0xA9, initial_accumulator_value, 0x2D, lsb_address_to_and, msb_address_to_and, 0x00]; // LDA #$22; AND $2244;  BRK
+  let mut cpu = CPU::new();
+  cpu.mem_write_u16(address_to_and, value_to_and as u16);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, expected_final_value);
+}
+
+#[test]
+fn test_0x3d_and_absolute_x_mode_should_and_compare_value_to_accumulator() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let initial_accumulator_value = 0x22u8;
+  let lsb_address_to_and = 0x44u8;
+  let msb_address_to_and = 0x22u8;
+  let address_to_and = 0x2244u16;
+  let value_to_and = 0x03u8;
+  let expected_final_value = 0x02u8;
+  let x_register_value = 0x05u8;
+  let program = vec![
+    0xA2,
+    x_register_value,
+    0xA9,
+    initial_accumulator_value,
+    0x3D,
+    lsb_address_to_and,
+    msb_address_to_and,
+    0x00,
+  ]; // LDX #$05; LDA #$22; AND $2244, X;  BRK
+  let mut cpu = CPU::new();
+  cpu.mem_write_u16(address_to_and + x_register_value as u16, value_to_and as u16);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, expected_final_value);
+}
+
+#[test]
+fn test_0x39_and_absolute_y_mode_should_and_compare_value_to_accumulator() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let initial_accumulator_value = 0x22u8;
+  let lsb_address_to_and = 0x44u8;
+  let msb_address_to_and = 0x22u8;
+  let address_to_and = 0x2244u16;
+  let value_to_and = 0x03u8;
+  let expected_final_value = 0x02u8;
+  let y_register_value = 0x05u8;
+  let program = vec![
+    0xA0,
+    y_register_value,
+    0xA9,
+    initial_accumulator_value,
+    0x39,
+    lsb_address_to_and,
+    msb_address_to_and,
+    0x00,
+  ]; // LDY #$05; LDA #$22; AND $2244, Y;  BRK
+  let mut cpu = CPU::new();
+  cpu.mem_write_u16(address_to_and + y_register_value as u16, value_to_and as u16);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, expected_final_value);
+}
+
+#[test]
+fn test_0x21_and_indirect_x_mode_should_and_compare_value_to_accumulator() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let initial_accumulator_value = 0x22u8;
+  let address_to_and = 0x44u8;
+  let value_to_and = 0x03u8;
+  let expected_final_value = 0x02u8;
+  let x_register_value = 0x05u8;
+  let addr_at_indirect_addr = 0x55u8;
+  let program = vec![
+    0xA2,
+    x_register_value,
+    0xA9,
+    initial_accumulator_value,
+    0x21,
+    address_to_and,
+    0x00,
+  ]; // LDX #$05; LDA #$22; AND ($44, X);  BRK
+  let mut cpu = CPU::new();
+  // $0044 + x_register (#$05) = $0049
+  cpu.mem_write((address_to_and + x_register_value) as u16, addr_at_indirect_addr);
+  // addr to read value = $00 addr_at_indirect_addr = $0005
+  cpu.mem_write(addr_at_indirect_addr as u16, value_to_and);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, expected_final_value);
+}
+
+#[test]
+fn test_0x31_and_indirect_y_mode_should_and_compare_value_to_accumulator() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let initial_accumulator_value = 0x22u8;
+  let address_to_and = 0x44u8;
+  let value_at_address_to_and = 0x77u8;
+  let value_to_and = 0x03u8;
+  let expected_final_value = 0x02u8;
+  let y_register_value = 0x05u8;
+  let addr_at_indirect_addr = 0x55u8;
+  let program = vec![
+    0xA2,
+    y_register_value,
+    0xA9,
+    initial_accumulator_value,
+    0x31,
+    address_to_and,
+    0x00,
+  ]; // LDY #$05; LDA #$22; AND ($44), Y;  BRK
+  let mut cpu = CPU::new();
+  // get the value at the "address_to_and" ($0044)
+  cpu.mem_write(address_to_and as u16, value_at_address_to_and);
+  cpu.mem_write(value_at_address_to_and as u16, addr_at_indirect_addr + y_register_value);
+  cpu.mem_write((addr_at_indirect_addr + y_register_value) as u16, value_to_and);
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, expected_final_value);
 }
 
 // --------------- LDA --------------------
@@ -254,7 +508,7 @@ fn test_0xa9_lda_immediate_mode_should_get_instruction_and_brk_and_set_zero_stat
 }
 
 #[test]
-fn test_0xa5_lda_zeropage_mode_should_get_instruction_and_set_status_flags_properly() { 
+fn test_0xa5_lda_zeropage_mode_should_get_instruction_and_set_status_flags_properly() {
   // arrange
   let mut cpu = CPU::new();
   let program = vec![0xA5, 0x33, 0x00]; // LDA $33; BRK
@@ -268,7 +522,7 @@ fn test_0xa5_lda_zeropage_mode_should_get_instruction_and_set_status_flags_prope
 }
 
 #[test]
-fn test_0xa5_lda_zeropage_mode_should_get_status_and_value_properly() { 
+fn test_0xa5_lda_zeropage_mode_should_get_status_and_value_properly() {
   // arrange
   let mut cpu = CPU::new();
   let expected_value = 0x22;
@@ -284,7 +538,7 @@ fn test_0xa5_lda_zeropage_mode_should_get_status_and_value_properly() {
 }
 
 #[test]
-fn test_0xb5_lda_zeropage_x_mode_should_get_instruction_and_set_status_flags_properly() { 
+fn test_0xb5_lda_zeropage_x_mode_should_get_instruction_and_set_status_flags_properly() {
   // arrange
   let mut cpu = CPU::new();
   let program = vec![0xB5, 0x33, 0x00]; // LDA $33, X; BRK
@@ -298,7 +552,7 @@ fn test_0xb5_lda_zeropage_x_mode_should_get_instruction_and_set_status_flags_pro
 }
 
 #[test]
-fn test_0xb5_lda_zeropage_x_mode_should_get_status_and_value_properly() { 
+fn test_0xb5_lda_zeropage_x_mode_should_get_status_and_value_properly() {
   // arrange
   let mut cpu = CPU::new();
   let expected_value = 0x44;
@@ -314,7 +568,7 @@ fn test_0xb5_lda_zeropage_x_mode_should_get_status_and_value_properly() {
 }
 
 #[test]
-fn test_0xad_lda_absolute_mode_should_get_instruction_and_set_status_flags_properly() { 
+fn test_0xad_lda_absolute_mode_should_get_instruction_and_set_status_flags_properly() {
   // arrange
   let mut cpu = CPU::new();
   let program = vec![0xAD, 0x33, 0xC4, 0x00]; // LDA $C433; BRK
@@ -328,7 +582,7 @@ fn test_0xad_lda_absolute_mode_should_get_instruction_and_set_status_flags_prope
 }
 
 #[test]
-fn test_0xad_lda_absolute_mode_should_get_status_and_value_properly() { 
+fn test_0xad_lda_absolute_mode_should_get_status_and_value_properly() {
   // arrange
   let mut cpu = CPU::new();
   let expected_value = 0x44;
@@ -339,12 +593,12 @@ fn test_0xad_lda_absolute_mode_should_get_status_and_value_properly() {
   cpu.load_and_run(program);
 
   // assert
-  assert_eq!(cpu.status, 0b0000_0000); 
+  assert_eq!(cpu.status, 0b0000_0000);
   assert_eq!(cpu.accumulator, expected_value as u8);
 }
 
 #[test]
-fn test_0xbd_lda_absolute_x_mode_should_get_instruction_and_set_status_flags_properly() { 
+fn test_0xbd_lda_absolute_x_mode_should_get_instruction_and_set_status_flags_properly() {
   // arrange
   let mut cpu = CPU::new();
   let program = vec![0xBD, 0x33, 0xC4, 0x00]; // LDA $C433, X; BRK
@@ -358,7 +612,7 @@ fn test_0xbd_lda_absolute_x_mode_should_get_instruction_and_set_status_flags_pro
 }
 
 #[test]
-fn test_0xbd_lda_absolute_x_mode_should_get_status_and_value_properly() { 
+fn test_0xbd_lda_absolute_x_mode_should_get_status_and_value_properly() {
   // arrange
   let mut cpu = CPU::new();
   let expected_value = 0x44;
@@ -404,7 +658,7 @@ fn test_0xb9_lda_absolute_y_mode_should_get_status_and_value_properly() {
 }
 
 #[test]
-fn test_0xa1_lda_indirect_x_mode_should_get_instruction_and_set_status_flags_properly() { 
+fn test_0xa1_lda_indirect_x_mode_should_get_instruction_and_set_status_flags_properly() {
   // arrange
   let mut cpu = CPU::new();
   let program = vec![0xA1, 0x33, 0x00]; // LDA ($33, X); BRK
@@ -418,7 +672,7 @@ fn test_0xa1_lda_indirect_x_mode_should_get_instruction_and_set_status_flags_pro
 }
 
 #[test]
-fn test_0xa1_lda_indirect_x_mode_should_get_status_and_value_properly() { 
+fn test_0xa1_lda_indirect_x_mode_should_get_status_and_value_properly() {
   // arrange
   let mut cpu = CPU::new();
   let expected_value = 0x44;
@@ -448,7 +702,7 @@ fn test_0xb1_lda_indirect_y_mode_should_get_instruction_and_set_status_flags_pro
 }
 
 #[test]
-fn test_0xb1_lda_indirect_x_mode_should_get_status_and_value_properly() { 
+fn test_0xb1_lda_indirect_x_mode_should_get_status_and_value_properly() {
   // arrange
   let mut cpu = CPU::new();
   let expected_value = 0x44;
@@ -684,7 +938,10 @@ fn test_0x95_sta_zeropage_x_mode_should_store_acc_at_the_right_addr() {
   // assert
   assert_eq!(cpu.status, expected_status_flags);
   assert_eq!(cpu.accumulator, expected_value);
-  assert_eq!(cpu.mem_read(expected_addr as u16 + cpu.register_x as u16), expected_value);
+  assert_eq!(
+    cpu.mem_read(expected_addr as u16 + cpu.register_x as u16),
+    expected_value
+  );
 }
 
 #[test]
@@ -720,7 +977,10 @@ fn test_0x9d_sta_absolute_x_mode_should_store_acc_at_the_right_addr() {
   // assert
   assert_eq!(cpu.status, expected_status_flags);
   assert_eq!(cpu.accumulator, expected_value);
-  assert_eq!(cpu.mem_read_u16(expected_addr + cpu.register_x as u16), expected_value as u16);
+  assert_eq!(
+    cpu.mem_read_u16(expected_addr + cpu.register_x as u16),
+    expected_value as u16
+  );
 }
 
 #[test]
@@ -738,7 +998,10 @@ fn test_0x99_sta_absolute_y_mode_should_store_acc_at_the_right_addr() {
   // assert
   assert_eq!(cpu.status, expected_status_flags);
   assert_eq!(cpu.accumulator, expected_value);
-  assert_eq!(cpu.mem_read_u16(expected_addr + cpu.register_y as u16), expected_value as u16);
+  assert_eq!(
+    cpu.mem_read_u16(expected_addr + cpu.register_y as u16),
+    expected_value as u16
+  );
 }
 
 #[test]
@@ -785,7 +1048,7 @@ fn test_0x91_sta_indirect_y_mode_should_store_acc_at_the_right_addr() {
 
 // ------------------- STX -------------------
 #[test]
-fn test_0x86_stx_zeropage_mode_should_store_x_register_at_the_right_addr(){
+fn test_0x86_stx_zeropage_mode_should_store_x_register_at_the_right_addr() {
   // arrange
   let expected_status_flags = 0b0000_0000;
   let expected_value = 0x11;
@@ -803,7 +1066,7 @@ fn test_0x86_stx_zeropage_mode_should_store_x_register_at_the_right_addr(){
 }
 
 #[test]
-fn test_0x96_stx_zeropage_y_mode_should_store_x_register_at_the_right_addr(){
+fn test_0x96_stx_zeropage_y_mode_should_store_x_register_at_the_right_addr() {
   // arrange
   let expected_status_flags = 0b0000_0000;
   let y_value = 0x03;
@@ -822,7 +1085,7 @@ fn test_0x96_stx_zeropage_y_mode_should_store_x_register_at_the_right_addr(){
 }
 
 #[test]
-fn test_0x8e_stx_absolute_mode_should_store_x_register_at_the_right_addr(){
+fn test_0x8e_stx_absolute_mode_should_store_x_register_at_the_right_addr() {
   // arrange
   let expected_status_flags = 0b0000_0000;
   let expected_value = 0x11;
@@ -843,7 +1106,7 @@ fn test_0x8e_stx_absolute_mode_should_store_x_register_at_the_right_addr(){
 
 // ------------------- STY -------------------
 #[test]
-fn test_0x84_sty_zeropage_mode_should_store_x_register_at_the_right_addr(){
+fn test_0x84_sty_zeropage_mode_should_store_x_register_at_the_right_addr() {
   // arrange
   let expected_status_flags = 0b0000_0000;
   let expected_value = 0x11;
@@ -861,7 +1124,7 @@ fn test_0x84_sty_zeropage_mode_should_store_x_register_at_the_right_addr(){
 }
 
 #[test]
-fn test_0x94_sty_zeropage_y_mode_should_store_x_register_at_the_right_addr(){
+fn test_0x94_sty_zeropage_y_mode_should_store_x_register_at_the_right_addr() {
   // arrange
   let expected_status_flags = 0b0000_0000;
   let x_value = 0x03;
@@ -880,7 +1143,7 @@ fn test_0x94_sty_zeropage_y_mode_should_store_x_register_at_the_right_addr(){
 }
 
 #[test]
-fn test_0x8c_sty_absolute_mode_should_store_x_register_at_the_right_addr(){
+fn test_0x8c_sty_absolute_mode_should_store_x_register_at_the_right_addr() {
   // arrange
   let expected_status_flags = 0b0000_0000;
   let expected_value = 0x11;
@@ -948,11 +1211,11 @@ fn test_0xe8_inx_should_overflow_x_register() {
 // Should fail
 #[test]
 #[should_panic(expected = "OP code ff not found")]
-fn test_run_should_panic_unknown_opcode(){
+fn test_run_should_panic_unknown_opcode() {
   // arrange
   let mut cpu = CPU::new();
   let program = vec![0xFF]; // wrong opcode
-  
+
   // act
   cpu.load_and_run(program);
 
