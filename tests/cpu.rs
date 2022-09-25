@@ -1,6 +1,6 @@
 use nes_emulator_rust::cpu::CPU;
 
-// --------------- LDA --------------------
+// --------------- ADC --------------------
 #[test]
 fn test_0x69_adc_immediate_mode_should_add_value_to_accumulator() {
   // arrange
@@ -21,14 +21,14 @@ fn test_0x69_adc_immediate_mode_should_add_value_to_accumulator() {
 #[test]
 fn test_0x69_adc_immediate_mode_should_add_value_to_accumulator_and_set_overflow_and_carry_flags() {
   // arrange
-  let expected_status_flags = 0b0100_0001;
+  let expected_status_flags = 0b1100_0001;
   let value = 0xFE;
   let expected_value = 0xFF;
   let program = vec![0x69, value, 0x69, 0x01, 0x00]; // ADC #$FF; ADC #$01;  BRK
   let mut cpu = CPU::new();
 
   // act
-  cpu.load_and_run(program);
+  cpu.load_and_run(program); // 1100_0001
 
   // assert
   assert_eq!(cpu.status, expected_status_flags);
@@ -185,6 +185,42 @@ fn test_0x71_adc_indirect_x_mode_should_add_value_to_accumulator() {
   // assert
   assert_eq!(cpu.status, expected_status_flags);
   assert_eq!(cpu.accumulator, expected_value);
+}
+
+// --------------- AND --------------------
+#[test]
+fn test_0x29_and_immediate_mode_should_and_compare_value_to_accumulator() {
+  // arrange
+  let expected_status_flags = 0b0000_0000;
+  let initial_accumulator_value = 0x22u8;
+  let value_to_and = 0x03u8;
+  let expected_final_value = 0x02u8;
+  let program = vec![0xA9, initial_accumulator_value, 0x29, value_to_and, 0x00]; // LDA #$10; AND #$04;  BRK
+  let mut cpu = CPU::new();
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, expected_final_value);
+}
+
+#[test]
+fn test_0x29_and_immediate_mode_should_and_compare_value_to_accumulator_and_set_zero_flag() {
+  // arrange
+  let expected_status_flags = 0b0000_0010;
+  let initial_accumulator_value = 0x10u8;
+  let value_to_and = 0x04u8;
+  let program = vec![0xA9, initial_accumulator_value, 0x29, value_to_and, 0x00]; // LDA #$10; AND #$04;  BRK
+  let mut cpu = CPU::new();
+
+  // act
+  cpu.load_and_run(program);
+
+  // assert
+  assert_eq!(cpu.status, expected_status_flags);
+  assert_eq!(cpu.accumulator, 0);
 }
 
 // --------------- LDA --------------------

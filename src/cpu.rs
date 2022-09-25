@@ -167,8 +167,17 @@ impl CPU {
 
     self.accumulator = self.accumulator.wrapping_add(param);
 
-    // check carry flag
-    self.update_carry_and_overflow_flags(self.accumulator.checked_add(param));    
+    self.update_negative_and_zero_flags(self.accumulator);
+    self.update_carry_and_overflow_flags(self.accumulator.checked_add(param));        
+  }
+
+  fn and(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+    let param = self.mem_read(operand_addr);
+
+    self.accumulator &= param;
+
+    self.update_negative_and_zero_flags(self.accumulator);
   }
 
   fn lda(&mut self, addressing_mode: &AddressingMode) {
@@ -235,6 +244,9 @@ impl CPU {
       match code {
         0x69 | 0x65 | 0x75 | 0x6D | 0x7D | 0x79 | 0x61 | 0x71 => {
           self.adc(&current_opcode.addressing_mode);
+        }
+        0x29 | 0x25 | 0x35 | 0x2D | 0x3D | 0x39 | 0x21 | 0x31 => {
+          self.and(&current_opcode.addressing_mode);
         }
         0xA9 | 0xA5 | 0xB5 | 0xAD | 0xBD | 0xB9 | 0xA1 | 0xB1 => {
           self.lda(&current_opcode.addressing_mode);
