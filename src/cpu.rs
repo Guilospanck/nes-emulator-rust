@@ -165,7 +165,7 @@ impl CPU {
     let operand_addr = self.get_operand_addr(mode);
     let param = self.mem_read(operand_addr);
 
-    self.accumulator += param;
+    self.accumulator = self.accumulator.wrapping_add(param);
 
     // check carry flag
     self.update_carry_and_overflow_flags(self.accumulator.checked_add(param));    
