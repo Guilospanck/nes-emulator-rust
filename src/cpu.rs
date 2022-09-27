@@ -1,5 +1,5 @@
 use core::panic;
-use std::{collections::HashMap, ops::Add};
+use std::{collections::HashMap};
 
 use crate::opcodes;
 
@@ -197,9 +197,9 @@ impl CPU {
 
     self.update_negative_and_zero_flags(self.accumulator);
     // Update carry flag with old seventh bit
-    let bits = format!("1111111{}", seventh_bit);
+    let bits = format!("0000000{}", seventh_bit);
     let new_bits = u8::from_str_radix(&bits, 2).unwrap();
-    self.status &= new_bits;    
+    self.status |= new_bits;    
   }
 
   fn lda(&mut self, addressing_mode: &AddressingMode) {
