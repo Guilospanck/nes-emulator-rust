@@ -10,6 +10,8 @@ const RESET_INTERRUPT_ADDR: u16 = 0xFFFC;
 /// See `studies/addressing.asm` for more info.
 #[derive(Debug, PartialEq, Eq)]
 pub enum AddressingMode {
+  Accumulator,
+  Relative,
   Immediate,
   ZeroPage,
   ZeroPageX,
@@ -158,6 +160,7 @@ impl CPU {
         addr.wrapping_add(self.register_y as u16)
       }
       AddressingMode::NoneAddressing => panic!("Mode not known"),
+      _ => todo!()
     }
   }
 
