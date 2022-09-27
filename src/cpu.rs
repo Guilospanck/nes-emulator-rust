@@ -1,5 +1,5 @@
 use core::panic;
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Add};
 
 use crate::opcodes;
 
@@ -160,7 +160,7 @@ impl CPU {
         addr.wrapping_add(self.register_y as u16)
       }
       AddressingMode::NoneAddressing => panic!("Mode not known"),
-      _ => todo!()
+      _ => panic!("Mode not known")
     }
   }
 
@@ -181,6 +181,25 @@ impl CPU {
     self.accumulator &= param;
 
     self.update_negative_and_zero_flags(self.accumulator);
+  }
+
+  fn asl(&mut self, mode: &AddressingMode) {
+    let seventh_bit = format!("{:08b}", self.accumulator).chars().collect::<Vec<char>>()[0];
+    
+    if *mode == AddressingMode::Accumulator {
+      self.accumulator <<= 1;
+    } else {
+      let operand_addr = self.get_operand_addr(mode);
+      let param = self.mem_read(operand_addr);
+
+      self.accumulator = param << 1;
+    }
+
+    self.update_negative_and_zero_flags(self.accumulator);
+    // Update carry flag with old seventh bit
+    let bits = format!("1111111{}", seventh_bit);
+    let new_bits = u8::from_str_radix(&bits, 2).unwrap();
+    self.status &= new_bits;    
   }
 
   fn lda(&mut self, addressing_mode: &AddressingMode) {
@@ -250,6 +269,9 @@ impl CPU {
         }
         0x29 | 0x25 | 0x35 | 0x2D | 0x3D | 0x39 | 0x21 | 0x31 => {
           self.and(&current_opcode.addressing_mode);
+        }
+        0x0A | 0x06 | 0x16 | 0x0E | 0x1E => {
+          self.asl(&current_opcode.addressing_mode);
         }
         0xA9 | 0xA5 | 0xB5 | 0xAD | 0xBD | 0xB9 | 0xA1 | 0xB1 => {
           self.lda(&current_opcode.addressing_mode);
