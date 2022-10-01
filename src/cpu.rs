@@ -159,6 +159,7 @@ impl CPU {
 
         addr.wrapping_add(self.register_y as u16)
       }
+      AddressingMode::Relative => self.program_counter,
       AddressingMode::NoneAddressing => panic!("Mode not known"),
       _ => panic!("Mode not known")
     }
@@ -168,10 +169,12 @@ impl CPU {
     let operand_addr = self.get_operand_addr(mode);
     let param = self.mem_read(operand_addr);
 
+    let old_accumulator = self.accumulator;
+
     self.accumulator = self.accumulator.wrapping_add(param);
 
     self.update_negative_and_zero_flags(self.accumulator);
-    self.update_carry_and_overflow_flags(self.accumulator.checked_add(param));        
+    self.update_carry_and_overflow_flags(old_accumulator.checked_add(param));        
   }
 
   fn and(&mut self, mode: &AddressingMode) {
@@ -200,6 +203,17 @@ impl CPU {
     let bits = format!("0000000{}", seventh_bit);
     let new_bits = u8::from_str_radix(&bits, 2).unwrap();
     self.status |= new_bits;    
+  }
+
+  fn bcc(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+    let param = self.mem_read(operand_addr);
+
+    let step = param + 1;
+
+    if self.status & 0b0000_0001 == 0 {
+      self.program_counter = self.program_counter.wrapping_add(step as u16);
+    }
   }
 
   fn lda(&mut self, addressing_mode: &AddressingMode) {
@@ -273,6 +287,7 @@ impl CPU {
         0x0A | 0x06 | 0x16 | 0x0E | 0x1E => {
           self.asl(&current_opcode.addressing_mode);
         }
+        0x90 => self.bcc(&current_opcode.addressing_mode),
         0xA9 | 0xA5 | 0xB5 | 0xAD | 0xBD | 0xB9 | 0xA1 | 0xB1 => {
           self.lda(&current_opcode.addressing_mode);
         }

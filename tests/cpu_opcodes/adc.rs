@@ -21,10 +21,10 @@ fn test_0x69_adc_immediate_mode_should_add_value_to_accumulator() {
 #[test]
 fn test_0x69_adc_immediate_mode_should_add_value_to_accumulator_and_set_overflow_and_carry_flags() {
   // arrange
-  let expected_status_flags = 0b1100_0001;
-  let value = 0xFE;
-  let expected_value = 0xFF;
-  let program = vec![0x69, value, 0x69, 0x01, 0x00]; // ADC #$FF; ADC #$01;  BRK
+  let expected_status_flags = 0b0100_0001;
+  let value = 0xFF;
+  let expected_value = 0x01;
+  let program = vec![0x69, value, 0x69, 0x02, 0x00]; // ADC #$FF; ADC #$02;  BRK
   let mut cpu = CPU::new();
 
   // act

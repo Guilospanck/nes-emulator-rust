@@ -57,6 +57,8 @@ lazy_static! {
     Opcode::new(0x0E, "ASL", 3, 6, AddressingMode::Absolute),
     Opcode::new(0x1E, "ASL", 3, 7 /* +1 if page crossed */, AddressingMode::AbsoluteX),
 
+    Opcode::new(0x90, "BCC", 2, 2 /* 2 (+1 if branch succeeds, +2 if to a new page) */, AddressingMode::Relative),
+
     Opcode::new(0xA9, "LDA", 2, 2, AddressingMode::Immediate),
     Opcode::new(0xA5, "LDA", 2, 3, AddressingMode::ZeroPage),
     Opcode::new(0xB5, "LDA", 2, 4, AddressingMode::ZeroPageX),
