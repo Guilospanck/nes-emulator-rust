@@ -60,6 +60,8 @@ lazy_static! {
     Opcode::new(0x90, "BCC", 2, 2 /* 2 (+1 if branch succeeds, +2 if to a new page) */, AddressingMode::Relative),
     
     Opcode::new(0xB0, "BCS", 2, 2 /* 2 (+1 if branch succeeds, +2 if to a new page) */, AddressingMode::Relative),
+    
+    Opcode::new(0xF0, "BEQ", 2, 2 /* 2 (+1 if branch succeeds, +2 if to a new page) */, AddressingMode::Relative),
 
     Opcode::new(0xC9, "CMP", 2, 2, AddressingMode::Immediate),
     Opcode::new(0xC5, "CMP", 2, 3, AddressingMode::ZeroPage),

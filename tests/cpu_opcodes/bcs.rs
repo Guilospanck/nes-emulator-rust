@@ -6,7 +6,7 @@ fn test_0xb0_bcs_will_not_branch_because_carry_is_clear() {
   let expected_status_flags = 0b1000_0000;
   let first_value = 0xF0;
   let sec_value = 0x01;
-  let expected_final_acc_value = 0xF3; // 243j(10)
+  let expected_final_acc_value = 0xF3; // 243(10)
   let bcs_relative_step = 0x04;
   let program = vec![
     0x69,
