@@ -216,6 +216,17 @@ impl CPU {
     }
   }
 
+  fn bcs(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+    let param = self.mem_read(operand_addr);
+
+    let step = param + 1;
+
+    if self.status & 0b0000_0001 == 1 {
+      self.program_counter = self.program_counter.wrapping_add(step as u16);
+    }
+  }
+
   fn lda(&mut self, addressing_mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(addressing_mode);
     let param = self.mem_read(operand_addr);
@@ -288,6 +299,7 @@ impl CPU {
           self.asl(&current_opcode.addressing_mode);
         }
         0x90 => self.bcc(&current_opcode.addressing_mode),
+        0xB0 => self.bcs(&current_opcode.addressing_mode),
         0xA9 | 0xA5 | 0xB5 | 0xAD | 0xBD | 0xB9 | 0xA1 | 0xB1 => {
           self.lda(&current_opcode.addressing_mode);
         }
