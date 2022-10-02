@@ -1,5 +1,5 @@
 use core::panic;
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 use crate::opcodes;
 
@@ -94,19 +94,29 @@ impl CPU {
     self.mem_write_u16(RESET_INTERRUPT_ADDR, PROGRAM_ROM_MEMORY_ADDRESS_START);
   }
 
-  fn update_negative_and_zero_flags(&mut self, result: u8) {
-    // Set Status Flags
+  fn update_zero_flag(&mut self, result: u8) {
     if result == 0 {
       self.status |= 0b0000_0010; // set zero flag to 1
     } else {
       self.status &= 0b1111_1101; // set zero flag to 0
     }
+  }
 
+  fn update_negative_flag(&mut self, result: u8) {
     if result & 0b1000_0000 != 0 {
       self.status |= 0b1000_0000; // set negative flag to 1
     } else {
       self.status &= 0b0111_1111; // set negative flag to 0
     }
+  }
+
+  fn update_negative_and_zero_flags(&mut self, result: u8) {
+    self.update_zero_flag(result);
+    self.update_negative_flag(result);
+  }
+
+  fn set_carry_flag(&mut self) {
+    self.status |= 0b0000_0001;
   }
 
   fn update_carry_and_overflow_flags(&mut self, result: Option<u8>) {
@@ -161,7 +171,7 @@ impl CPU {
       }
       AddressingMode::Relative => self.program_counter,
       AddressingMode::NoneAddressing => panic!("Mode not known"),
-      _ => panic!("Mode not known")
+      _ => panic!("Mode not known"),
     }
   }
 
@@ -174,7 +184,7 @@ impl CPU {
     self.accumulator = self.accumulator.wrapping_add(param);
 
     self.update_negative_and_zero_flags(self.accumulator);
-    self.update_carry_and_overflow_flags(old_accumulator.checked_add(param));        
+    self.update_carry_and_overflow_flags(old_accumulator.checked_add(param));
   }
 
   fn and(&mut self, mode: &AddressingMode) {
@@ -187,8 +197,10 @@ impl CPU {
   }
 
   fn asl(&mut self, mode: &AddressingMode) {
-    let seventh_bit = format!("{:08b}", self.accumulator).chars().collect::<Vec<char>>()[0];
-    
+    let seventh_bit = format!("{:08b}", self.accumulator)
+      .chars()
+      .collect::<Vec<char>>()[0];
+
     if *mode == AddressingMode::Accumulator {
       self.accumulator <<= 1;
     } else {
@@ -202,7 +214,7 @@ impl CPU {
     // Update carry flag with old seventh bit
     let bits = format!("0000000{}", seventh_bit);
     let new_bits = u8::from_str_radix(&bits, 2).unwrap();
-    self.status |= new_bits;    
+    self.status |= new_bits;
   }
 
   fn bcc(&mut self, mode: &AddressingMode) {
@@ -225,6 +237,22 @@ impl CPU {
     if self.status & 0b0000_0001 == 1 {
       self.program_counter = self.program_counter.wrapping_add(step as u16);
     }
+  }
+
+  fn cmp(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+    let param = self.mem_read(operand_addr);
+
+    if self.accumulator == param {
+      self.set_carry_flag();
+      self.update_zero_flag(0u8);      
+    }
+
+    if self.accumulator > param {
+      self.set_carry_flag();
+    }
+    
+    self.update_negative_flag(self.accumulator);
   }
 
   fn lda(&mut self, addressing_mode: &AddressingMode) {
@@ -300,6 +328,9 @@ impl CPU {
         }
         0x90 => self.bcc(&current_opcode.addressing_mode),
         0xB0 => self.bcs(&current_opcode.addressing_mode),
+        0xC9 | 0xC5 | 0xD5 | 0xCD | 0xDD | 0xD9 | 0xC1 | 0xD1 => {
+          self.cmp(&current_opcode.addressing_mode);
+        }
         0xA9 | 0xA5 | 0xB5 | 0xAD | 0xBD | 0xB9 | 0xA1 | 0xB1 => {
           self.lda(&current_opcode.addressing_mode);
         }

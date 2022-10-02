@@ -61,6 +61,15 @@ lazy_static! {
     
     Opcode::new(0xB0, "BCS", 2, 2 /* 2 (+1 if branch succeeds, +2 if to a new page) */, AddressingMode::Relative),
 
+    Opcode::new(0xC9, "CMP", 2, 2, AddressingMode::Immediate),
+    Opcode::new(0xC5, "CMP", 2, 3, AddressingMode::ZeroPage),
+    Opcode::new(0xD5, "CMP", 2, 4, AddressingMode::ZeroPageX),
+    Opcode::new(0xCD, "CMP", 3, 4, AddressingMode::Absolute),
+    Opcode::new(0xDD, "CMP", 3, 4 /* +1 if page crossed */, AddressingMode::AbsoluteX),
+    Opcode::new(0xD9, "CMP", 3, 4 /* +1 if page crossed */, AddressingMode::AbsoluteY),
+    Opcode::new(0xC1, "CMP", 2, 6, AddressingMode::IndirectX),
+    Opcode::new(0xD1, "CMP", 2, 5 /* +1 if page crossed */, AddressingMode::IndirectY),
+
     Opcode::new(0xA9, "LDA", 2, 2, AddressingMode::Immediate),
     Opcode::new(0xA5, "LDA", 2, 3, AddressingMode::ZeroPage),
     Opcode::new(0xB5, "LDA", 2, 4, AddressingMode::ZeroPageX),
