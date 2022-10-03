@@ -78,7 +78,7 @@ impl CPU {
   }
 
   fn reset(&mut self) {
-    self.stack_pointer = 0;
+    self.stack_pointer = 0xFF;
     self.accumulator = 0;
     self.register_x = 0;
     self.register_y = 0;
@@ -266,6 +266,28 @@ impl CPU {
     self.update_negative_flag(self.accumulator);
   }
 
+  fn get_stack_absolute_address(&mut self) -> u16 {
+    let absolute_stack_pointer = format!("01{:X}", self.stack_pointer);
+    self.stack_pointer -= 1;
+    let test = u16::from_str_radix(&absolute_stack_pointer, 16).unwrap();
+    println!("{}", test);
+    test
+  }
+
+  fn jsr(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+
+    // save old program counter to stack
+    let old_program_counter = self.program_counter;
+    let lsb = (old_program_counter & 0xFF) as u8;
+    let hsb = (old_program_counter >> 8) as u8;
+    self.memory[self.get_stack_absolute_address() as usize] = hsb;
+    self.memory[self.get_stack_absolute_address() as usize] = lsb;
+
+    // update program counter (to jump to a subroutine)
+    self.program_counter = operand_addr;    
+  }
+
   fn lda(&mut self, addressing_mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(addressing_mode);
     let param = self.mem_read(operand_addr);
@@ -288,6 +310,10 @@ impl CPU {
 
     self.register_y = param;
     self.update_negative_and_zero_flags(self.register_y);
+  }
+
+  fn rts(&mut self) {
+
   }
 
   fn sta(&mut self, addressing_mode: &AddressingMode) {
@@ -343,6 +369,7 @@ impl CPU {
         0xC9 | 0xC5 | 0xD5 | 0xCD | 0xDD | 0xD9 | 0xC1 | 0xD1 => {
           self.cmp(&current_opcode.addressing_mode);
         }
+        0x20 => self.jsr(&current_opcode.addressing_mode),
         0xA9 | 0xA5 | 0xB5 | 0xAD | 0xBD | 0xB9 | 0xA1 | 0xB1 => {
           self.lda(&current_opcode.addressing_mode);
         }
@@ -352,6 +379,7 @@ impl CPU {
         0xA0 | 0xA4 | 0xB4 | 0xAC | 0xBC => {
           self.ldy(&current_opcode.addressing_mode);
         }
+        0x60 => self.rts(),
         0x85 | 0x95 | 0x8D | 0x9D | 0x99 | 0x81 | 0x91 => {
           self.sta(&current_opcode.addressing_mode);
         }
