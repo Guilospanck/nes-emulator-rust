@@ -175,6 +175,22 @@ impl CPU {
     }
   }
 
+  fn get_address_from_stack(&self, stack_pointer: u8) -> u16 {
+    let absolute_stack_pointer = format!("01{:X}", stack_pointer);
+    u16::from_str_radix(&absolute_stack_pointer, 16).unwrap()   
+  }
+
+  fn insert_address_into_stack(&mut self) -> u16 {
+    let address = self.get_address_from_stack(self.stack_pointer);
+    self.stack_pointer -= 1;
+    address
+  }
+
+  fn remove_address_into_stack(&mut self) -> u16 {
+    self.stack_pointer += 1;
+    self.get_address_from_stack(self.stack_pointer)
+  }
+
   fn adc(&mut self, mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(mode);
     let param = self.mem_read(operand_addr);
@@ -266,23 +282,15 @@ impl CPU {
     self.update_negative_flag(self.accumulator);
   }
 
-  fn get_stack_absolute_address(&mut self) -> u16 {
-    let absolute_stack_pointer = format!("01{:X}", self.stack_pointer);
-    self.stack_pointer -= 1;
-    let test = u16::from_str_radix(&absolute_stack_pointer, 16).unwrap();
-    println!("{}", test);
-    test
-  }
-
   fn jsr(&mut self, mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(mode);
 
     // save old program counter to stack
-    let old_program_counter = self.program_counter;
+    let old_program_counter = self.program_counter + 1;
     let lsb = (old_program_counter & 0xFF) as u8;
     let hsb = (old_program_counter >> 8) as u8;
-    self.memory[self.get_stack_absolute_address() as usize] = hsb;
-    self.memory[self.get_stack_absolute_address() as usize] = lsb;
+    self.memory[self.insert_address_into_stack() as usize] = hsb;
+    self.memory[self.insert_address_into_stack() as usize] = lsb;
 
     // update program counter (to jump to a subroutine)
     self.program_counter = operand_addr;    
@@ -313,7 +321,14 @@ impl CPU {
   }
 
   fn rts(&mut self) {
+    // retrieve program counter from stack
+    let lsb_address = self.memory[self.remove_address_into_stack() as usize];
+    let msb_address = self.memory[self.remove_address_into_stack() as usize];
 
+    let absolute_address = (msb_address as u16) << 8 | lsb_address as u16;
+
+    // return from subroutine
+    self.program_counter = absolute_address + 1; 
   }
 
   fn sta(&mut self, addressing_mode: &AddressingMode) {
