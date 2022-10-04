@@ -6,6 +6,7 @@ use crate::opcodes;
 const MEMORY_SIZE: u16 = 0xFFFF;
 const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x8000;
 const RESET_INTERRUPT_ADDR: u16 = 0xFFFC;
+const STACK_STARTING_POINTER: u8 = 0xFF;
 
 /// See `studies/addressing.asm` for more info.
 #[derive(Debug, PartialEq, Eq)]
@@ -41,7 +42,7 @@ impl Default for CPU {
       program_counter: 0,
       status: 0,
       accumulator: 0,
-      stack_pointer: 0,
+      stack_pointer: STACK_STARTING_POINTER,
       register_x: 0,
       register_y: 0,
       memory,
@@ -78,7 +79,7 @@ impl CPU {
   }
 
   fn reset(&mut self) {
-    self.stack_pointer = 0xFF;
+    self.stack_pointer = STACK_STARTING_POINTER;
     self.accumulator = 0;
     self.register_x = 0;
     self.register_y = 0;
@@ -186,7 +187,7 @@ impl CPU {
     address
   }
 
-  fn remove_address_into_stack(&mut self) -> u16 {
+  fn remove_address_from_stack(&mut self) -> u16 {
     self.stack_pointer += 1;
     self.get_address_from_stack(self.stack_pointer)
   }
@@ -322,8 +323,8 @@ impl CPU {
 
   fn rts(&mut self) {
     // retrieve program counter from stack
-    let lsb_address = self.memory[self.remove_address_into_stack() as usize];
-    let msb_address = self.memory[self.remove_address_into_stack() as usize];
+    let lsb_address = self.memory[self.remove_address_from_stack() as usize];
+    let msb_address = self.memory[self.remove_address_from_stack() as usize];
 
     let absolute_address = (msb_address as u16) << 8 | lsb_address as u16;
 
