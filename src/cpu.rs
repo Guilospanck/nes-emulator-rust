@@ -120,6 +120,10 @@ impl CPU {
     self.status |= 0b0000_0001;
   }
 
+  fn clear_carry_flag(&mut self) {
+    self.status &= 0b1111_1110;
+  }
+
   fn update_carry_and_overflow_flags(&mut self, result: Option<u8>) {
     match result {
       Some(_e) => self.status &= 0b1011_1110,
@@ -291,6 +295,10 @@ impl CPU {
     }
   }
 
+  fn clc(&mut self){
+    self.clear_carry_flag();
+  }
+
   fn cmp(&mut self, mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(mode);
     let param = self.mem_read(operand_addr);
@@ -429,6 +437,7 @@ impl CPU {
         0xF0 => self.beq(&current_opcode.addressing_mode),
         0xD0 => self.bne(&current_opcode.addressing_mode),
         0x10 => self.bpl(&current_opcode.addressing_mode),
+        0x18 => self.clc(),
         0xC9 | 0xC5 | 0xD5 | 0xCD | 0xDD | 0xD9 | 0xC1 | 0xD1 => {
           self.cmp(&current_opcode.addressing_mode);
         }
