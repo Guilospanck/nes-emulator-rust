@@ -62,6 +62,10 @@ lazy_static! {
     Opcode::new(0xB0, "BCS", 2, 2 /* 2 (+1 if branch succeeds, +2 if to a new page) */, AddressingMode::Relative),
     
     Opcode::new(0xF0, "BEQ", 2, 2 /* 2 (+1 if branch succeeds, +2 if to a new page) */, AddressingMode::Relative),
+    
+    Opcode::new(0x10, "BPL", 2, 2 /* 2 (+1 if branch succeeds, +2 if to a new page) */, AddressingMode::Relative),
+
+    Opcode::new(0x00, "BRK", 1, 7, AddressingMode::NoneAddressing),
 
     Opcode::new(0xC9, "CMP", 2, 2, AddressingMode::Immediate),
     Opcode::new(0xC5, "CMP", 2, 3, AddressingMode::ZeroPage),
@@ -71,6 +75,10 @@ lazy_static! {
     Opcode::new(0xD9, "CMP", 3, 4 /* +1 if page crossed */, AddressingMode::AbsoluteY),
     Opcode::new(0xC1, "CMP", 2, 6, AddressingMode::IndirectX),
     Opcode::new(0xD1, "CMP", 2, 5 /* +1 if page crossed */, AddressingMode::IndirectY),
+
+    Opcode::new(0xCA, "DEX", 1, 2, AddressingMode::NoneAddressing),
+
+    Opcode::new(0xE8, "INX", 1, 2, AddressingMode::NoneAddressing),
 
     Opcode::new(0x20, "JSR", 3, 6, AddressingMode::Absolute),
 
@@ -114,10 +122,6 @@ lazy_static! {
     Opcode::new(0x8C, "STY", 3, 4, AddressingMode::Absolute),
 
     Opcode::new(0xAA, "TXA", 1, 2, AddressingMode::NoneAddressing),
-
-    Opcode::new(0xE8, "INX", 1, 2, AddressingMode::NoneAddressing),
-
-    Opcode::new(0x00, "BRK", 1, 7, AddressingMode::NoneAddressing),
   ];
 
   pub static ref OPCODES_MAP: HashMap<u8, &'static Opcode> = {

@@ -178,7 +178,7 @@ impl CPU {
 
   fn get_address_from_stack(&self, stack_pointer: u8) -> u16 {
     let absolute_stack_pointer = format!("01{:X}", stack_pointer);
-    u16::from_str_radix(&absolute_stack_pointer, 16).unwrap()   
+    u16::from_str_radix(&absolute_stack_pointer, 16).unwrap()
   }
 
   fn insert_address_into_stack(&mut self) -> u16 {
@@ -262,7 +262,19 @@ impl CPU {
 
     let step = param + 1;
 
-    if self.status & 0b0000_0010 == 2 { // if zero flag is set
+    if self.status & 0b0000_0010 == 2 {
+      // if zero flag is set
+      self.program_counter = self.program_counter.wrapping_add(step as u16);
+    }
+  }
+
+  fn bpl(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+    let param = self.mem_read(operand_addr);
+
+    let step = param + 1;
+
+    if self.status & 0b1000_0000 == 0 {
       self.program_counter = self.program_counter.wrapping_add(step as u16);
     }
   }
@@ -273,14 +285,24 @@ impl CPU {
 
     if self.accumulator == param {
       self.set_carry_flag();
-      self.update_zero_flag(0u8);      
+      self.update_zero_flag(0u8);
     }
 
     if self.accumulator > param {
       self.set_carry_flag();
     }
-    
+
     self.update_negative_flag(self.accumulator);
+  }
+
+  fn dex(&mut self) {
+    self.register_x = self.register_x.wrapping_sub(1);
+    self.update_negative_and_zero_flags(self.register_x);
+  }
+
+  fn inx(&mut self) {
+    self.register_x = self.register_x.wrapping_add(1);
+    self.update_negative_and_zero_flags(self.register_x);
   }
 
   fn jsr(&mut self, mode: &AddressingMode) {
@@ -294,7 +316,7 @@ impl CPU {
     self.memory[self.insert_address_into_stack() as usize] = lsb;
 
     // update program counter (to jump to a subroutine)
-    self.program_counter = operand_addr;    
+    self.program_counter = operand_addr;
   }
 
   fn lda(&mut self, addressing_mode: &AddressingMode) {
@@ -329,7 +351,7 @@ impl CPU {
     let absolute_address = (msb_address as u16) << 8 | lsb_address as u16;
 
     // return from subroutine
-    self.program_counter = absolute_address + 1; 
+    self.program_counter = absolute_address + 1;
   }
 
   fn sta(&mut self, addressing_mode: &AddressingMode) {
@@ -349,11 +371,6 @@ impl CPU {
 
   fn tax(&mut self) {
     self.register_x = self.accumulator;
-    self.update_negative_and_zero_flags(self.register_x);
-  }
-
-  fn inx(&mut self) {
-    self.register_x = self.register_x.wrapping_add(1);
     self.update_negative_and_zero_flags(self.register_x);
   }
 
@@ -382,9 +399,12 @@ impl CPU {
         0x90 => self.bcc(&current_opcode.addressing_mode),
         0xB0 => self.bcs(&current_opcode.addressing_mode),
         0xF0 => self.beq(&current_opcode.addressing_mode),
+        0x10 => self.bpl(&current_opcode.addressing_mode),
         0xC9 | 0xC5 | 0xD5 | 0xCD | 0xDD | 0xD9 | 0xC1 | 0xD1 => {
           self.cmp(&current_opcode.addressing_mode);
         }
+        0xCA => self.dex(),
+        0xE8 => self.inx(),
         0x20 => self.jsr(&current_opcode.addressing_mode),
         0xA9 | 0xA5 | 0xB5 | 0xAD | 0xBD | 0xB9 | 0xA1 | 0xB1 => {
           self.lda(&current_opcode.addressing_mode);
@@ -406,7 +426,6 @@ impl CPU {
           self.sty(&current_opcode.addressing_mode);
         }
         0xAA => self.tax(),
-        0xE8 => self.inx(),
         0x00 => return,
         _ => todo!(),
       }
