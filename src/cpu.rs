@@ -268,6 +268,18 @@ impl CPU {
     }
   }
 
+  fn bne(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+    let param = self.mem_read(operand_addr);
+
+    let step = param + 1;
+
+    if self.status & 0b0000_0010 == 0 {
+      // if zero flag is set
+      self.program_counter = self.program_counter.wrapping_add(step as u16);
+    }
+  }
+
   fn bpl(&mut self, mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(mode);
     let param = self.mem_read(operand_addr);
@@ -399,6 +411,7 @@ impl CPU {
         0x90 => self.bcc(&current_opcode.addressing_mode),
         0xB0 => self.bcs(&current_opcode.addressing_mode),
         0xF0 => self.beq(&current_opcode.addressing_mode),
+        0xD0 => self.bne(&current_opcode.addressing_mode),
         0x10 => self.bpl(&current_opcode.addressing_mode),
         0xC9 | 0xC5 | 0xD5 | 0xCD | 0xDD | 0xD9 | 0xC1 | 0xD1 => {
           self.cmp(&current_opcode.addressing_mode);

@@ -11,6 +11,7 @@ pub mod tax;
 pub mod bcc;
 pub mod bcs;
 pub mod beq;
+pub mod bne;
 pub mod bpl;
 pub mod cmp;
 pub mod dex;
