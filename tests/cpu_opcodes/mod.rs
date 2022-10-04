@@ -14,6 +14,7 @@ pub mod beq;
 pub mod bne;
 pub mod bpl;
 pub mod cmp;
+pub mod cpx;
 pub mod dex;
 pub mod inx;
 pub mod jsr;

@@ -307,6 +307,22 @@ impl CPU {
     self.update_negative_flag(self.accumulator);
   }
 
+  fn cpx(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+    let param = self.mem_read(operand_addr);
+
+    if self.register_x == param {
+      self.set_carry_flag();
+      self.update_zero_flag(0u8);
+    }
+
+    if self.register_x > param {
+      self.set_carry_flag();
+    }
+
+    self.update_negative_flag(self.register_x);
+  }
+
   fn dex(&mut self) {
     self.register_x = self.register_x.wrapping_sub(1);
     self.update_negative_and_zero_flags(self.register_x);
@@ -415,6 +431,9 @@ impl CPU {
         0x10 => self.bpl(&current_opcode.addressing_mode),
         0xC9 | 0xC5 | 0xD5 | 0xCD | 0xDD | 0xD9 | 0xC1 | 0xD1 => {
           self.cmp(&current_opcode.addressing_mode);
+        }
+        0xE0 | 0xE4 | 0xEC => {
+          self.cpx(&current_opcode.addressing_mode);
         }
         0xCA => self.dex(),
         0xE8 => self.inx(),
