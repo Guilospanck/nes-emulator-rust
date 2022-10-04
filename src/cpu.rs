@@ -390,6 +390,10 @@ impl CPU {
     self.program_counter = absolute_address + 1;
   }
 
+  fn sec(&mut self) {
+    self.set_carry_flag();
+  }
+
   fn sta(&mut self, addressing_mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(addressing_mode);
     self.mem_write(operand_addr, self.accumulator);
@@ -457,6 +461,7 @@ impl CPU {
           self.ldy(&current_opcode.addressing_mode);
         }
         0x60 => self.rts(),
+        0x38 => self.sec(),
         0x85 | 0x95 | 0x8D | 0x9D | 0x99 | 0x81 | 0x91 => {
           self.sta(&current_opcode.addressing_mode);
         }

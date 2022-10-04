@@ -4,6 +4,7 @@ pub mod asl;
 pub mod lda;
 pub mod ldx;
 pub mod ldy;
+pub mod sec;
 pub mod sta;
 pub mod stx;
 pub mod sty;
