@@ -20,3 +20,4 @@ pub mod clc;
 pub mod dex;
 pub mod inx;
 pub mod jsr;
+pub mod sbc;

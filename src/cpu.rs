@@ -394,6 +394,18 @@ impl CPU {
     self.set_carry_flag();
   }
 
+  fn sbc(&mut self, mode: &AddressingMode) {
+    let operand_addr = self.get_operand_addr(mode);
+    let param = self.mem_read(operand_addr);
+
+    let old_accumulator = self.accumulator;
+
+    self.accumulator = self.accumulator.wrapping_sub(param);
+
+    self.update_negative_and_zero_flags(self.accumulator);
+    self.update_carry_and_overflow_flags(old_accumulator.checked_sub(param));
+  }
+
   fn sta(&mut self, addressing_mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(addressing_mode);
     self.mem_write(operand_addr, self.accumulator);
@@ -462,6 +474,9 @@ impl CPU {
         }
         0x60 => self.rts(),
         0x38 => self.sec(),
+        0xE9 | 0xE5 | 0xF5 | 0xED | 0xFD | 0xF9 | 0xE1 | 0xF1 => {
+          self.sbc(&current_opcode.addressing_mode);
+        }
         0x85 | 0x95 | 0x8D | 0x9D | 0x99 | 0x81 | 0x91 => {
           self.sta(&current_opcode.addressing_mode);
         }
