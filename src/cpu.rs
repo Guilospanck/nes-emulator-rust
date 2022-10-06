@@ -78,7 +78,7 @@ impl CPU {
     self.mem_write(addr + 1, hsb);
   }
 
-  fn reset(&mut self) {
+  pub fn reset(&mut self) {
     self.stack_pointer = STACK_STARTING_POINTER;
     self.accumulator = 0;
     self.register_x = 0;
@@ -87,7 +87,7 @@ impl CPU {
     self.program_counter = self.mem_read_u16(RESET_INTERRUPT_ADDR);
   }
 
-  fn load(&mut self, program: Vec<u8>) {
+  pub fn load(&mut self, program: Vec<u8>) {
     self.memory[PROGRAM_ROM_MEMORY_ADDRESS_START as usize
       ..(PROGRAM_ROM_MEMORY_ADDRESS_START as usize + program.len())]
       .copy_from_slice(&program[..]); // puts the program into memory
@@ -295,7 +295,7 @@ impl CPU {
     }
   }
 
-  fn clc(&mut self){
+  fn clc(&mut self) {
     self.clear_carry_flag();
   }
 
@@ -426,10 +426,15 @@ impl CPU {
     self.update_negative_and_zero_flags(self.register_x);
   }
 
-  fn run(&mut self) {
+  pub fn run_with_callback<F>(&mut self, mut callback: F)
+  where
+    F: FnMut(&mut CPU),
+  {
     let all_op_codes: &HashMap<u8, &'static opcodes::Opcode> = &(*opcodes::OPCODES_MAP);
 
     loop {
+      callback(self);
+      
       let code = self.mem_read(self.program_counter);
       self.program_counter += 1;
       let current_program_counter_state = self.program_counter;
@@ -495,6 +500,10 @@ impl CPU {
         self.program_counter += (current_opcode.bytes - 1) as u16;
       }
     }
+  }
+
+  fn run(&mut self) {
+    self.run_with_callback(|_| {});
   }
 
   pub fn load_and_run(&mut self, program: Vec<u8>) {
