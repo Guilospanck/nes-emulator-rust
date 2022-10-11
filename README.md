@@ -1,6 +1,8 @@
 # NES Emulator Rust
 A simple NES Emulator written in Rust.
 
+[![codecov](https://codecov.io/gh/Guilospanck/nes-emulator-rust/branch/main/graph/badge.svg?token=7VJXXU7UFJ)](https://codecov.io/gh/Guilospanck/nes-emulator-rust)
+
 ## Goal
 Have a simple, but working, NES emulator written in rust.
 
