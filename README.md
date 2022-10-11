@@ -9,6 +9,12 @@ Have a simple, but working, NES emulator written in rust.
 ## Current project
 As writing an emulator (when you've never done it) takes a lot of time, currently this one only emulates some `opcodes` necessary to run a basic `Snake Game`.
 
+<div align="center">
+  <image src="./docs/img/snake.jpeg" width="400" height="400">
+</div>
+
+You can play it by using the WASD keys.
+
 ## Installation
 
 ### Rust
