@@ -160,7 +160,7 @@ fn test_0xd9_cmp_absolute_y_mode_should_compare_value_to_accumulator() {
 #[test]
 fn test_0xc1_cmp_indirect_x_mode_should_compare_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0000;
+  let expected_status_flags = 0b1000_0000;
   let value = 0x11;
   let zeropage_addr = 0x33u8;
   let x_register_value = 0x03u8;
@@ -188,7 +188,7 @@ fn test_0xc1_cmp_indirect_x_mode_should_compare_value_to_accumulator() {
 #[test]
 fn test_0xd1_cmp_indirect_y_mode_should_compare_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0000;
+  let expected_status_flags = 0b1000_0000;
   let value = 0x11;
   let zeropage_addr = 0x33u8;
   let y_register_value = 0x03u8;

@@ -95,12 +95,12 @@ impl CPU {
     self.mem_write_u16(RESET_INTERRUPT_ADDR, PROGRAM_ROM_MEMORY_ADDRESS_START);
   }
 
-  fn update_zero_flag(&mut self, result: u8) {
-    if result == 0 {
-      self.status |= 0b0000_0010; // set zero flag to 1
-    } else {
-      self.status &= 0b1111_1101; // set zero flag to 0
-    }
+  fn set_zero_flag(&mut self) {
+    self.status |= 0b0000_0010;
+  }
+
+  fn clear_zero_flag(&mut self) {
+    self.status &= 0b1111_1101;
   }
 
   fn update_negative_flag(&mut self, result: u8) {
@@ -114,6 +114,14 @@ impl CPU {
   fn update_negative_and_zero_flags(&mut self, result: u8) {
     self.update_zero_flag(result);
     self.update_negative_flag(result);
+  }
+
+  fn update_zero_flag(&mut self, result: u8) {
+    if result == 0 {
+      self.set_zero_flag();
+    } else {
+      self.clear_zero_flag();
+    }
   }
 
   fn set_carry_flag(&mut self) {
@@ -331,36 +339,26 @@ impl CPU {
     let operand_addr = self.get_operand_addr(mode);
     let param = self.mem_read(operand_addr);
 
-    if self.accumulator == param {
+    if self.accumulator >= param {
       self.set_carry_flag();
-      self.update_zero_flag(0u8);
     } else {
-      self.update_zero_flag(1u8);
+      self.clear_carry_flag();
     }
 
-    if self.accumulator > param {
-      self.set_carry_flag();
-    }
-
-    self.update_negative_flag(self.accumulator);
+    self.update_negative_and_zero_flags(self.accumulator.wrapping_sub(param));
   }
 
   fn cpx(&mut self, mode: &AddressingMode) {
     let operand_addr = self.get_operand_addr(mode);
     let param = self.mem_read(operand_addr);
 
-    if self.register_x == param {
+    if self.register_x >= param {
       self.set_carry_flag();
-      self.update_zero_flag(0u8);
     } else {
-      self.update_zero_flag(1u8);
+      self.clear_carry_flag();
     }
 
-    if self.register_x > param {
-      self.set_carry_flag();
-    }
-
-    self.update_negative_flag(self.register_x);
+    self.update_negative_and_zero_flags(self.register_x.wrapping_sub(param));
   }
 
   fn dex(&mut self) {
