@@ -458,6 +458,11 @@ impl CPU {
     self.update_negative_and_zero_flags(self.register_x);
   }
 
+  fn txa(&mut self) {
+    self.accumulator = self.register_x;
+    self.update_negative_and_zero_flags(self.accumulator);
+  }
+
   pub fn run_with_callback<F>(&mut self, mut callback: F)
   where
     F: FnMut(&mut CPU),
@@ -524,6 +529,7 @@ impl CPU {
           self.sty(&current_opcode.addressing_mode);
         }
         0xAA => self.tax(),
+        0x8A => self.txa(),
         0x00 => {
           println!("Reached break: {:x}", self.program_counter);
           return;
