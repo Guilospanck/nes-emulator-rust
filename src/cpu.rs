@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::opcodes;
 
 const MEMORY_SIZE: u16 = 0xFFFF;
-const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x8000;
+const PROGRAM_ROM_MEMORY_ADDRESS_START: u16 = 0x0600;
 const RESET_INTERRUPT_ADDR: u16 = 0xFFFC;
 const STACK_STARTING_POINTER: u8 = 0xFF;
 
@@ -180,20 +180,49 @@ impl CPU {
     }
   }
 
-  fn get_address_from_stack(&self, stack_pointer: u8) -> u16 {
-    let absolute_stack_pointer = format!("01{:X}", stack_pointer);
+  fn get_address_from_stack(&self) -> u16 {
+    let absolute_stack_pointer = format!("01{:X}", self.stack_pointer);
     u16::from_str_radix(&absolute_stack_pointer, 16).unwrap()
   }
 
   fn insert_address_into_stack(&mut self) -> u16 {
-    let address = self.get_address_from_stack(self.stack_pointer);
+    let address = self.get_address_from_stack();
     self.stack_pointer -= 1;
     address
   }
 
   fn remove_address_from_stack(&mut self) -> u16 {
     self.stack_pointer += 1;
-    self.get_address_from_stack(self.stack_pointer)
+    self.get_address_from_stack()
+  }
+
+  fn add_relative_displacement_to_program_counter(&mut self, step: u8) {
+    let mut lsb_program_counter = (self.program_counter & 0xFF) as u8;
+    let mut msb_program_counter = (self.program_counter >> 8) as u8;
+
+    let step_as_i8 = step as i8;
+    let step_as_i8_mult_minus_one = step_as_i8 * -1;
+    let positive = step_as_i8.signum() == 1;
+
+    if positive {
+      let wrap = lsb_program_counter.checked_add(step);
+      lsb_program_counter = lsb_program_counter.wrapping_add(step);
+
+      match wrap {
+        Some(_) => (),
+        None => msb_program_counter = msb_program_counter.wrapping_add(1),
+      }
+    } else {
+      let wrap = lsb_program_counter.checked_sub(step_as_i8_mult_minus_one as u8);
+      lsb_program_counter = lsb_program_counter.wrapping_sub(step_as_i8_mult_minus_one as u8);
+
+      match wrap {
+        Some(_) => (),
+        None => msb_program_counter = msb_program_counter.wrapping_sub(1),
+      }
+    }
+
+    self.program_counter = (msb_program_counter as u16) << 8 | (lsb_program_counter as u16);
   }
 
   fn adc(&mut self, mode: &AddressingMode) {
@@ -245,7 +274,7 @@ impl CPU {
     let step = param + 1;
 
     if self.status & 0b0000_0001 == 0 {
-      self.program_counter = self.program_counter.wrapping_add(step as u16);
+      self.add_relative_displacement_to_program_counter(step);
     }
   }
 
@@ -256,7 +285,7 @@ impl CPU {
     let step = param + 1;
 
     if self.status & 0b0000_0001 == 1 {
-      self.program_counter = self.program_counter.wrapping_add(step as u16);
+      self.add_relative_displacement_to_program_counter(step);
     }
   }
 
@@ -268,7 +297,7 @@ impl CPU {
 
     if self.status & 0b0000_0010 == 2 {
       // if zero flag is set
-      self.program_counter = self.program_counter.wrapping_add(step as u16);
+      self.add_relative_displacement_to_program_counter(step);
     }
   }
 
@@ -279,8 +308,7 @@ impl CPU {
     let step = param + 1;
 
     if self.status & 0b0000_0010 == 0 {
-      // if zero flag is set
-      self.program_counter = self.program_counter.wrapping_add(step as u16);
+      self.add_relative_displacement_to_program_counter(step);
     }
   }
 
@@ -291,7 +319,7 @@ impl CPU {
     let step = param + 1;
 
     if self.status & 0b1000_0000 == 0 {
-      self.program_counter = self.program_counter.wrapping_add(step as u16);
+      self.add_relative_displacement_to_program_counter(step);
     }
   }
 
@@ -306,6 +334,8 @@ impl CPU {
     if self.accumulator == param {
       self.set_carry_flag();
       self.update_zero_flag(0u8);
+    } else {
+      self.update_zero_flag(1u8);
     }
 
     if self.accumulator > param {
@@ -322,6 +352,8 @@ impl CPU {
     if self.register_x == param {
       self.set_carry_flag();
       self.update_zero_flag(0u8);
+    } else {
+      self.update_zero_flag(1u8);
     }
 
     if self.register_x > param {
@@ -384,7 +416,7 @@ impl CPU {
     let lsb_address = self.memory[self.remove_address_from_stack() as usize];
     let msb_address = self.memory[self.remove_address_from_stack() as usize];
 
-    let absolute_address = (msb_address as u16) << 8 | lsb_address as u16;
+    let absolute_address = (msb_address as u16) << 8 | (lsb_address as u16);
 
     // return from subroutine
     self.program_counter = absolute_address + 1;
@@ -434,7 +466,7 @@ impl CPU {
 
     loop {
       callback(self);
-      
+
       let code = self.mem_read(self.program_counter);
       self.program_counter += 1;
       let current_program_counter_state = self.program_counter;
@@ -492,8 +524,11 @@ impl CPU {
           self.sty(&current_opcode.addressing_mode);
         }
         0xAA => self.tax(),
-        0x00 => return,
-        _ => todo!(),
+        0x00 => {
+          println!("Reached break: {:x}", self.program_counter);
+          return;
+        }
+        _ => return,
       }
 
       if current_program_counter_state == self.program_counter {
