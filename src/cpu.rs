@@ -25,6 +25,12 @@ pub enum AddressingMode {
   NoneAddressing,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+enum MathematicalOperation {
+  Add,
+  Sub,
+}
+
 pub struct CPU {
   pub program_counter: u16,
   pub status: u8,
@@ -132,10 +138,32 @@ impl CPU {
     self.status &= 0b1111_1110;
   }
 
-  fn update_carry_and_overflow_flags(&mut self, result: Option<u8>) {
+  fn set_overflow_flag(&mut self) {
+    self.status |= 0b0100_0000;
+  }
+
+  fn clear_overflow_flag(&mut self) {
+    self.status &= 0b1011_1111;
+  }
+
+  fn update_carry_and_overflow_flags(&mut self, result: Option<u8>, op: MathematicalOperation) {
     match result {
-      Some(_e) => self.status &= 0b1011_1110,
-      None => self.status |= 0b0100_0001,
+      Some(_e) => {
+        self.clear_overflow_flag();
+        if op == MathematicalOperation::Sub {
+          self.set_carry_flag();
+        } else {
+          self.clear_carry_flag();
+        }
+      }
+      None => {
+        self.set_overflow_flag();
+        if op == MathematicalOperation::Sub {
+          self.clear_carry_flag();
+        } else {
+          self.set_carry_flag();
+        }
+      }
     }
   }
 
@@ -242,7 +270,7 @@ impl CPU {
     self.accumulator = self.accumulator.wrapping_add(param);
 
     self.update_negative_and_zero_flags(self.accumulator);
-    self.update_carry_and_overflow_flags(old_accumulator.checked_add(param));
+    self.update_carry_and_overflow_flags(old_accumulator.checked_add(param), MathematicalOperation::Add);
   }
 
   fn and(&mut self, mode: &AddressingMode) {
@@ -433,7 +461,7 @@ impl CPU {
     self.accumulator = self.accumulator.wrapping_sub(param);
 
     self.update_negative_and_zero_flags(self.accumulator);
-    self.update_carry_and_overflow_flags(old_accumulator.checked_sub(param));
+    self.update_carry_and_overflow_flags(old_accumulator.checked_sub(param), MathematicalOperation::Sub);
   }
 
   fn sta(&mut self, addressing_mode: &AddressingMode) {

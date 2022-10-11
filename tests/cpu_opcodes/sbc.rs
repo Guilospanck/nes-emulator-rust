@@ -3,7 +3,7 @@ use nes_emulator_rust::cpu::CPU;
 #[test]
 fn test_0xe9_sbc_immediate_mode_should_subtract_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0000;
+  let expected_status_flags = 0b0000_0001;
   let value = 0x22;
   let subtract_value = 0x11;
   let expected_value = 0x11;
@@ -19,9 +19,9 @@ fn test_0xe9_sbc_immediate_mode_should_subtract_value_to_accumulator() {
 }
 
 #[test]
-fn test_0xe9_sbc_immediate_mode_should_subtract_value_to_accumulator_and_set_overflow_and_carry_flags() {
+fn test_0xe9_sbc_immediate_mode_should_subtract_value_to_accumulator_and_set_overflow_and_clear_carry_flags() {
   // arrange
-  let expected_status_flags = 0b1100_0001;
+  let expected_status_flags = 0b1100_0000;
   let value = 0x01;
   let expected_value = 0xFF;
   let program = vec![0xA9, value, 0xE9, 0x02, 0x00]; // LDA #$01; SBC #$02;  BRK
@@ -38,7 +38,7 @@ fn test_0xe9_sbc_immediate_mode_should_subtract_value_to_accumulator_and_set_ove
 #[test]
 fn test_0xe5_sbc_zeropage_mode_should_subtract_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0000;
+  let expected_status_flags = 0b0000_0001;
   let value = 0x22;
   let expected_value = 0x11;
   let zeropage_addr = 0x33u8;
@@ -57,7 +57,7 @@ fn test_0xe5_sbc_zeropage_mode_should_subtract_value_to_accumulator() {
 #[test]
 fn test_0xf5_sbc_zeropage_x_mode_should_subtract_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0000;
+  let expected_status_flags = 0b0000_0001;
   let value = 0x22;
   let expected_value = 0x11;
   let zeropage_addr = 0x33u8;
@@ -85,7 +85,7 @@ fn test_0xf5_sbc_zeropage_x_mode_should_subtract_value_to_accumulator() {
 #[test]
 fn test_0xed_sbc_absolute_mode_should_subtract_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0000;
+  let expected_status_flags = 0b0000_0001;
   let value = 0x22;
   let expected_value = 0x11;
   let lsb_absolute_addr = 0x33u8;
@@ -113,7 +113,7 @@ fn test_0xed_sbc_absolute_mode_should_subtract_value_to_accumulator() {
 #[test]
 fn test_0xfd_sbc_absolute_x_mode_should_subtract_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0000;
+  let expected_status_flags = 0b0000_0001;
   let value = 0x22;
   let expected_value = 0x11;
   let lsb_absolute_addr = 0x33u8;
@@ -144,7 +144,7 @@ fn test_0xfd_sbc_absolute_x_mode_should_subtract_value_to_accumulator() {
 #[test]
 fn test_0xf9_sbc_absolute_y_mode_should_subtract_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0000;
+  let expected_status_flags = 0b0000_0001;
   let value = 0x22;
   let expected_value = 0x11;
   let lsb_absolute_addr = 0x33u8;
@@ -175,7 +175,7 @@ fn test_0xf9_sbc_absolute_y_mode_should_subtract_value_to_accumulator() {
 #[test]
 fn test_0xe1_sbc_indirect_x_mode_should_subtract_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0010;
+  let expected_status_flags = 0b0000_0011;
   let value = 0x22;
   let expected_value = 0x11;
   let zeropage_addr = 0x33u8;
@@ -209,7 +209,7 @@ fn test_0xe1_sbc_indirect_x_mode_should_subtract_value_to_accumulator() {
 #[test]
 fn test_0xf1_sbc_indirect_x_mode_should_subtract_value_to_accumulator() {
   // arrange
-  let expected_status_flags = 0b0000_0000;
+  let expected_status_flags = 0b0000_0001;
   let value = 0x22;
   let expected_value = 0x11;
   let zeropage_addr = 0x33u8;
