@@ -201,7 +201,7 @@ impl CPU {
     let mut msb_program_counter = (self.program_counter >> 8) as u8;
 
     let step_as_i8 = step as i8;
-    let step_as_i8_mult_minus_one = step_as_i8 * -1;
+    let step_as_i8_mult_minus_one = -step_as_i8;
     let positive = step_as_i8.signum() == 1;
 
     if positive {
