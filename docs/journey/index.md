@@ -93,8 +93,16 @@ Its architecture consists of:
 - Three registers: `Accumulator`, `X` and `Y`, each one with 1 byte, used to perform mathematical operations and what-not;
 - One `status` register to store our operation [flags](https://github.com/Guilospanck/nes-emulator-rust#flags);
 - A [stack pointer](https://github.com/Guilospanck/nes-emulator-rust#stack-pointer) that shows what is the next free address to use the stack;
+- A 16-bit bus to address memory.
 
 ### Stack Pointer
+A stack is an abstract data type widely used in mostly everything. It makes use of the concept of LIFO (<i><b>L</b>ast <b>I</b>n <b>F</b>irst <b>O</b>ut</i>).
+
+<div align="center">
+  <image src="../img/stack.jpg" width="550" height="300">
+  <div>A stack</div>
+</div>
+
 The stack pointer is just an 1-byte address that tells us what is the next free address in the stack.
 
 The addresses reserved for the stack are the ones from `$0100` to `$01FF`.
