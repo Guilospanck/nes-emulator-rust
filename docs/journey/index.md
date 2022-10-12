@@ -24,7 +24,7 @@ As it's possible to realize from the image above, starting from left as 0, every
 The same happens for `binary (base2)` and `hexadecimal (base16)` systems, but on the place of 10 we use 2 and 16 respectively.
 
 <div align="center">
-  <image src="../img/binary_representation.png" width="550" height="300">
+  <image src="../img/binary_representation.png" width="550" height="250">
   <div>Binary representation</div>
 </div>
 
@@ -50,7 +50,7 @@ Binary numbers have the definition of MSB and LSB: <i>Most Significant Bit</i> a
 In the <i>Big Endian</i> notation we have the MSB at the right position and the LSB at the left. In the <i>Little Endian</i> is the contrary. Here's an image to exemplify it better.
 
 <div align="center">
-  <image src="../img/endianness.jpg" width="550" height="300">
+  <image src="../img/endianness.jpg" width="550" height="250">
   <div>Little and Big-Endian notation</div>
 </div>
 
@@ -156,5 +156,43 @@ For each one of them we'll have a different `opcode` for a different instruction
 Basically (and in a simplified way) the addressing modes work as follows:
 
 - `Accumulator`: acts directly on the Accumulator;
-- `Relative`: commonly used for branching instructions. It'll branch to another place on the Program Counter relative to where it is at the moment;
+- `Relative`: commonly used for branching instructions. It'll branch to another place on the <i>Program Counter</i> relative to where it is at the moment;
+- `Immediate`: using this addressing mode will not load the contents of some address, but the content itself. Example: `LDA #$04` will load the value `0x04` into the Accumulator register;
 - `ZeroPage`: gives us the second byte of the address formed by `$00{}`. In other words, if the address is `$E9` then the absolute address will be `$00E9`;
+- `ZeroPageX`: works as `ZeroPage`, but before getting the contents of the ZeroPage address, it'll add to it the value contained in the `X register`. Example: `LDX #$03; LDA $06, X` will get the contents from the address `$0009` (0x06 + 0x03 = 0x09);
+- `ZeroPageY`: the same as above, but with the `Y Register`;
+- `Absolute`: loads the contents of some absolute address. Example: `LDA $03ED` will load the contents of the address `$03ED` to the Accumulator register;
+- `AbsoluteX`: the same as `ZeroPageX` but with absolute address;
+- `AbsoluteY`: the same as `ZeroPageY` but with absolute address;
+- `IndirectX`: this and the next one are a bit tricky, but bear with me. Let's understand this one using an example.
+  Let's say that we have:
+
+    - at the address `$0003` the value `0x05`; (a)
+    - at the address `$0004` the value `0x07`; (b)
+    - the X Register has the value `0x01`;     (c)
+    - at the address `$0705` the value `0xAD`. (d)
+
+  Then we want to process the following instruction: `LDA ($02, X)` which uses the IndirectX addressing mode.
+
+  This is what will happen:
+    - First we get the `ZeroPageX` out of it: `$02 + x => $02 + $01 = $03`;
+    - Now we get the absolute address that begins at the address `$0003`, which from `(a)` we know it's `0x05` and from `(b)` we know it's `0x07`. Then, knowing that the CPU uses Little-Endian notation, we have the absolute address `$0705`;
+    - We will now load into the Accumulator the contents that exists at the address `$0705`, which from `(d)` we know it's `0xAD`.
+
+- `IndirectY`: this one follows a line that it looks like the previous one, but with some minor differences. Let's us understand it using an example:
+  Let's say that we have:
+
+    - at the address `$0003` the value `0x05`; (a)
+    - at the address `$0004` the value `0x07`; (b)
+    - the Y Register has the value `0x01`;     (c)
+    - at the address `$0706` the value `0xAD`. (d)
+
+  Then we want to process the following instruction: `LDA ($03), Y` which uses the IndirectY addressing mode.
+
+  This is what will happen:
+    - First we get the `ZeroPage` out of it: `$0003`;
+    - Now we get the absolute address that begins at the address `$0003`, which from `(a)` we know it's `0x05` and from `(b)` we know it's `0x07`. Then, knowing that the CPU uses Little-Endian notation, we have the absolute address `$0705`;
+    - Add to that absolute address the value of the Y Register: `$0705 + $0001 = $0706`;
+    - We will now load into the Accumulator the contents that exists at the address `$0706`, which from `(d)` we know it's `0xAD`.
+
+- `NoneAddressing`: this is used for the instructions that don\`t require any other option, like `BRK`, `CLC`, `DEX`, `INX` and so on.
