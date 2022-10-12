@@ -47,7 +47,7 @@ Just imagine what would it be like to understand what a stream of 100 characters
 From the definition above you can have a grasp of what it is.
 Binary numbers have the definition of MSB and LSB: <i>Most Significant Bit</i> and <i>Least Significant Bit</i> respectively.
 
-In the <i>Big Endian</i> notation we have the MSB at the right position and the LSB at the left. In the <i>Little Endian</i> is the contrary. Here's an image to exemplify it better.
+In the <i>Big Endian</i> notation we have the MSB at the left position and the LSB at the right. In the <i>Little Endian</i> is the contrary. Here's an image to exemplify it better.
 
 <div align="center">
   <image src="../img/endianness.jpg" width="550" height="250">
@@ -60,6 +60,39 @@ So, for example, if we have the number `0x0A0B0C0D` (in hexadecimal representati
 - this `0x0D0C0B0A`, in Little-Endian.
 
 At the end of the day, the number is the same, only the way we store (and read) it that differs.
+
+### Bitwise operations
+Bitwise operations are called like that because they are operations we perform on bits.
+
+Some of the operations are:
+- `AND`: will be 1 only if the number at the same position in two different binaries is 1.
+```bash
+    0101 (decimal 5)
+AND 0011 (decimal 3)
+  = 0001 (decimal 1)
+```
+- `OR`: will be 0 only if the number at the same position in two different binaries is 0.
+```bash
+   0101 (decimal 5)
+OR 0011 (decimal 3)
+ = 0111 (decimal 7)
+```
+- `XOR` (exclusive OR): will be 1 only if the just one number at the same position in two different binaries is 1.
+```bash
+    0101 (decimal 5)
+XOR 0011 (decimal 3)
+  = 0110 (decimal 6)
+```
+- `Left-Shift`: will shift every bit in a number to the left. If you shift left a number for just one position you're actually multiplying it by 2 (binary representation).
+```bash
+   00010111 (decimal +23) LEFT-SHIFT
+=  00101110 (decimal +46)
+```
+- `Right-Shift`: will shift every bit in a number to the right. If you shift right a number for just one position you're actually dividing it by 2 (binary representation).
+```bash
+=  00101110 (decimal +46) RIGHT-SHIFT
+   00010111 (decimal +23) LEFT-SHIFT
+```
 
 ### Choosing the system to emulate
 An emulator is unique to a console/computer/system. Therefore, if you know how to emulate, for instance, a Playstation console, that does not mean that you know how to emulate a NES one. Every system will be different.
