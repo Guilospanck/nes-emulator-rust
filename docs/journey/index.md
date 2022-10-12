@@ -16,7 +16,7 @@ Usually we in our day to day work use the `base10 representation` (also known as
 
 <div align="center">
   <image src="../img/base_decimal.jpg" width="550" height="300">
-  <caption>Decimal representation</caption>
+  <div>Decimal representation</div>
 </div>
 
 As it's possible to realize from the image above, starting from left as 0, every number is at an index which is an exponent of 10. Then, after solving the exponent, it is multiplied by the number at the current index.
@@ -25,12 +25,12 @@ The same happens for `binary (base2)` and `hexadecimal (base16)` systems, but on
 
 <div align="center">
   <image src="../img/binary_representation.png" width="550" height="300">
-  <caption>Binary representation</caption>
+  <div>Binary representation</div>
 </div>
 
 <div align="center">
   <image src="../img/base_hex.jpg" width="550" height="300">
-  <caption>Hexadecimal representation</caption>
+  <div>Hexadecimal representation</div>
 </div>
 
 > One thing to notice is that on the hexadecimal numbering system, the algorisms are numbered as follows: 0123456789ABCDEF.
@@ -51,7 +51,7 @@ In the <i>Big Endian</i> notation we have the MSB at the right position and the 
 
 <div align="center">
   <image src="../img/endianness.jpg" width="550" height="300">
-  <caption>Little and Big-Endian notation</caption>
+  <div>Little and Big-Endian notation</div>
 </div>
 
 So, for example, if we have the number `0x0A0B0C0D` (in hexadecimal representation), we will store it like:
@@ -77,7 +77,7 @@ The NES (<i>Nintendo Entertainment System</i>) was a game console produced by Ni
 
 <div align="center">
   <image src="../img/nes.jpg" width="550" height="300">
-  <caption>NES</caption>
+  <div>NES</div>
 </div>
 
 For its CPU it uses a version of the MOS Technology 6502.
@@ -104,7 +104,7 @@ The flags are nothing more than 1-bit values that tells us the current state of 
 
 <div align="center">
   <image src="../img/flags.png" width="550" height="300">
-  <caption>CPU Flags</caption>
+  <div>CPU Flags</div>
 </div>
 
 Each CPU instruction will update (or not) those values depending on the result of the operation.
@@ -115,7 +115,7 @@ The 6502 CPU has 56 instructions and 151 official opcodes.
 <div align="center">
   <a href="https://www.nesdev.org/obelisk-6502-guide/reference.html">
     <image src="../img/opcodes.jpeg" width="550" height="130">
-    <caption>6502 official instructions</caption>
+    <div>6502 official instructions</div>
   </a>
 </div>
 
