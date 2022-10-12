@@ -41,6 +41,26 @@ At the end of the day, everything that the computer can understand are zeros (0)
 
 Just imagine what would it be like to understand what a stream of 100 characters containing only 0's and 1's mean. It would be awful. Because of that, everything related to computer science and the description of them is usually represented using the hexadecimal number system.
 
+### Endianness
+> In computing, endianness is the order or sequence of bytes of a word of digital data in computer memory. Endianness is primarily expressed as big-endian or little-endian. A big-endian system stores the most significant byte of a word at the smallest memory address and the least significant byte at the largest. --Wikipedia
+
+From the definition above you can have a grasp of what it is.
+Binary numbers have the definition of MSB and LSB: <i>Most Significant Bit</i> and <i>Least Significant Bit</i> respectively.
+
+In the <i>Big Endian</i> notation we have the MSB at the right position and the LSB at the left. In the <i>Little Endian</i> is the contrary. Here's an image to exemplify it better.
+
+<div align="center">
+  <image src="../img/endianness.jpg" width="550" height="300">
+  <caption>Little and Big-Endian notation</caption>
+</div>
+
+So, for example, if we have the number `0x0A0B0C0D` (in hexadecimal representation), we will store it like:
+
+- this `0x0A0B0C0D`, in Big-Endian; and
+- this `0x0D0C0B0A`, in Little-Endian.
+
+At the end of the day, the number is the same, only the way we store (and read) it that differs.
+
 ### Choosing the system to emulate
 An emulator is unique to a console/computer/system. Therefore, if you know how to emulate, for instance, a Playstation console, that does not mean that you know how to emulate a NES one. Every system will be different.
 
@@ -69,12 +89,34 @@ The speed with which the CPU processes the instructions is ruled by the clock.
 The 6502 CPU version used by the NES it's fairly simple.
 It is an 8-bit CPU, which means that it has an 8-bit data bus. Therefore, this CPU can only process 8-bit (1 byte) instruction per clock and, if you want to process more than one, you'll have to combine them.
 
-### Opcodes
+Its architecture consists of:
+- Three registers: `Accumulator`, `X` and `Y`, each one with 1 byte, used to perform mathematical operations and what-not;
+- One `status` register to store our operation [flags](https://github.com/Guilospanck/nes-emulator-rust#flags);
+- A [stack pointer](https://github.com/Guilospanck/nes-emulator-rust#stack-pointer) that shows what is the next free address to use the stack;
+
+### Stack Pointer
+The stack pointer is just an 1-byte address that tells us what is the next free address in the stack.
+
+The addresses reserved for the stack are the ones from `$0100` to `$01FF`.
+
+### Flags
+The flags are nothing more than 1-bit values that tells us the current state of the operations happening in the CPU. These are them:
+
+<div align="center">
+  <image src="../img/flags.png" width="550" height="300">
+  <caption>CPU Flags</caption>
+</div>
+
+Each CPU instruction will update (or not) those values depending on the result of the operation.
+
+### Instructions and Opcodes
 The 6502 CPU has 56 instructions and 151 official opcodes.
 
 <div align="center">
-  <image src="../img/opcodes.jpeg" width="550" height="150">
-  <caption>6502 official instructions</caption>
+  <a href="https://www.nesdev.org/obelisk-6502-guide/reference.html">
+    <image src="../img/opcodes.jpeg" width="550" height="130">
+    <caption>6502 official instructions</caption>
+  </a>
 </div>
 
 As you can see from the image above, there aren't 151 opcodes. So, from where they come?
@@ -82,3 +124,29 @@ As you can see from the image above, there aren't 151 opcodes. So, from where th
 Each instruction has a different way of being processed (or, we should say, different `addressing modes`).
 
 ### Addressing Modes
+The addressing modes 6502 have are:
+
+```rs
+pub enum AddressingMode {
+  Accumulator,
+  Relative,
+  Immediate,
+  ZeroPage,
+  ZeroPageX,
+  ZeroPageY,
+  Absolute,
+  AbsoluteX, // Absolute, X
+  AbsoluteY, // Absolute, Y
+  IndirectX, // (Indirect, X)
+  IndirectY, // (Indirect), Y
+  NoneAddressing,
+}
+```
+
+For each one of them we'll have a different `opcode` for a different instruction.
+
+Basically (and in a simplified way) the addressing modes work as follows:
+
+- `Accumulator`: acts directly on the Accumulator;
+- `Relative`: commonly used for branching instructions. It'll branch to another place on the Program Counter relative to where it is at the moment;
+- `ZeroPage`: gives us the second byte of the address formed by `$00{}`. In other words, if the address is `$E9` then the absolute address will be `$00E9`;
