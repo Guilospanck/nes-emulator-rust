@@ -1,27 +1,27 @@
 # The journey of writing a NES emulator in Rust
 
 ## Introduction
-Since I started programming I always wanted to know how emulator works.
+Since I started programming I always wanted to know how an emulator works.
 > How can a computer let me play the same game that otherwise would require a console like Game Boy, NES, Playstation and so on?
 
-Whenever I would look into the realms of how to write an emulator, I've always found it pretty difficulty to even start (and, to be totally honest, it does require some many SSH - Sitting Studying Hours), so I never did it.
+Whenever I would look into the realms of how to write an emulator, I'd always found it pretty difficulty to even start (and, to be totally honest, it does require many HSS - <i>Hours Sitting Studying</i>), so I'd never do it.
 
-But some time ago, I decided to get into it and understand at least the principles of how it works and how I can write it. This is my journey.
+But some time ago, I decided to get into it and understand at least the principles of how it works and how I can write one. This is my journey.
 
 ## Theoric Fundaments
-To start learning about how an emulator works is necessary to learn first about numbering systems representations, as they are in the core of every computer-like type of system.
+To start learning about emulators is necessary to learn first about some core principles of Computer Science, as they are inside every computer-like type of system.
 
 ### Numbering systems representations
-Usually we in our day to day work use the `base10 representation` (also known as `decimal system`), which consists in multiplying some number by 10. Here's an example:
+Usually in our day to day work we use the `base10 representation` (also known as `decimal system`), which consists in multiplying some number by 10. Here's an example:
 
 <div align="center">
   <image src="../img/base_decimal.jpg" width="550" height="300">
   <div>Decimal representation</div>
 </div>
 
-As it's possible to realize from the image above, starting from left as 0, every number is at an index which is an exponent of 10. Then, after solving the exponent, it is multiplied by the number at the current index.
+As it's possible to realize from the image above, starting from right as 0, every number is at an index which is an exponent of 10. Then, after solving the exponent, it is multiplied by the number at the current index.
 
-The same happens for `binary (base2)` and `hexadecimal (base16)` systems, but on the place of 10 we use 2 and 16 respectively.
+The same happens for `binary (base2)` and `hexadecimal (base16)` systems, but on the place of `10` we use `2` and `16` respectively.
 
 <div align="center">
   <image src="../img/binary_representation.png" width="550" height="250">
@@ -33,13 +33,13 @@ The same happens for `binary (base2)` and `hexadecimal (base16)` systems, but on
   <div>Hexadecimal representation</div>
 </div>
 
-> One thing to notice is that on the hexadecimal numbering system, the algorisms are numbered as follows: 0123456789ABCDEF.
+> One thing to notice is that on the hexadecimal numbering system, the algorisms are numbered as follows: 0123456789ABCDEF, where A=10, B=11, C=12 and so on.
 
-Knowing that, one can see why different number representation systems are important. They can reduce the amount of data to represent some information.
+Knowing that, one can see why different number representation systems are important. They can reduce the amount of data required to represent some information.
 
-At the end of the day, everything that the computer can understand are zeros (0) and ones (1). A long stream of them. In a simplistic way all the computer is made of are of transistors. Thousands, millions, billions of them.
+At the end of the day, everything that the computer can understand are zeros (0) and ones (1). A long stream of them. In a simplistic way all the computer is made of are transistors. Thousands, millions, billions of them.
 
-Just imagine what would it be like to understand what a stream of 100 characters containing only 0's and 1's mean. It would be awful. Because of that, everything related to computer science and the description of them is usually represented using the hexadecimal number system.
+Just imagine how it would be like to understand what a stream of 100 characters containing only 0's and 1's mean. It would be awful. Because of that, everything related to computer science and the description of them is <b>usually</b> represented using the hexadecimal number system.
 
 ### Endianness
 > In computing, endianness is the order or sequence of bytes of a word of digital data in computer memory. Endianness is primarily expressed as big-endian or little-endian. A big-endian system stores the most significant byte of a word at the smallest memory address and the least significant byte at the largest. --Wikipedia
@@ -99,7 +99,7 @@ An emulator is unique to a console/computer/system. Therefore, if you know how t
 
 The first thing to do when creating an emulator is to understand how to the physical console works.
 - What are the components (CPU, PPU, APU, Memory...)?
-- How they are distributed?
+- How are they distributed?
 - How are they interconnected?
 - What is the capacity of each component?
 
@@ -139,6 +139,8 @@ A stack is an abstract data type widely used in mostly everything. It makes use 
 The stack pointer is just an 1-byte address that tells us what is the next free address in the stack.
 
 The addresses reserved for the stack are the ones from `$0100` to `$01FF`.
+
+> One thing to notice is that the stack in the 6502 starts from up addresses to down ones. For example, if we have two values to be inserted into the stack, the first one will be inserted at the address `$01FF` and the second one at `$01FE`. After these instructions, the Stack Pointer will have the value `$FD` indicating that the next free address in the stack is the `$01FD`.
 
 ### Flags
 The flags are nothing more than 1-bit values that tells us the current state of the operations happening in the CPU. These are them:
