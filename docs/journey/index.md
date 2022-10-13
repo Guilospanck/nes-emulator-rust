@@ -242,4 +242,12 @@ Basically (and in a simplified way) the addressing modes work as follows:
 - `NoneAddressing`: this is used for the instructions that don\`t require any other option, like `BRK`, `CLC`, `DEX`, `INX` and so on.
 
 
+## Development
+Following the guidelines from the [Methodology section](https://github.com/Guilospanck/nes-emulator-rust/blob/main/docs/journey/index.md#methodology), the first thing to do is to learn more about how the NES (to be more incisive, the 6502 CPU) works. I started this about 2 months ago.
+
+When you first start reading it, it looks like a beast (even though it's one of the simplest CPUs out there). Do not be afraid. You can do it. 
+
+> By the way, those motivational words are for myself.
+
+In this part you should be reading about `registers`, 
 

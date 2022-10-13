@@ -7,7 +7,7 @@ A simple NES Emulator written in Rust.
 Have a simple, but working, NES emulator written in rust.
 
 ## Current project
-As writing an emulator (when you've never done it) takes a lot of time, currently this one only emulates some `opcodes` necessary to run a basic `Snake Game`.
+As writing an emulator (when you've never done it) takes a lot of time, currently this one only emulates some `opcodes` necessary to run a basic `Snake Game`. In other words, it's only focused on the CPU part of it.
 
 <div align="center">
   <image src="./docs/img/snake.jpeg" width="400" height="400">
