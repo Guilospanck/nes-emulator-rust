@@ -8,6 +8,15 @@ Whenever I would look into the realms of how to write an emulator, I'd always fo
 
 But some time ago, I decided to get into it and understand at least the principles of how it works and how I can write one. This is my journey.
 
+## Methodology
+The process of initiating anything requires some bullet points. We must know what we are aiming for and what we're going to use and how to use it.
+
+The first and foremost is to know the theory behind the emulator and all fields related, such as the ones described on the section below.
+
+Then do some POC-like code that helps you understand the theory behind it better.
+
+After all, implement it in the desired space/language/framework. The key in this part is to divide the work in small chunks and then work on them separately one after another in order to not lose traction and motivation of the project as a whole.
+
 ## Theoric Fundaments
 To start learning about emulators is necessary to learn first about some core principles of Computer Science, as they are inside every computer-like type of system.
 
@@ -231,3 +240,6 @@ Basically (and in a simplified way) the addressing modes work as follows:
     - We will now load into the Accumulator the contents that exists at the address `$0706`, which from `(d)` we know it's `0xAD`.
 
 - `NoneAddressing`: this is used for the instructions that don\`t require any other option, like `BRK`, `CLC`, `DEX`, `INX` and so on.
+
+
+
