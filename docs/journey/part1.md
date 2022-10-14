@@ -1,4 +1,4 @@
-# The journey of writing a NES emulator in Rust
+# The journey of writing a NES emulator in Rust - Part I: The CPU
 
 ## Introduction
 Since I started programming I always wanted to know how an emulator works.
@@ -9,19 +9,19 @@ Whenever I would look into the realms of how to write an emulator, I'd always fi
 But some time ago, I decided to get into it and understand at least the principles of how it works and how I can write one. This is my journey.
 
 ## Methodology
-The process of initiating anything requires some bullet points. We must know what we are aiming for and what we're going to use and how to use it.
+The process of initiating anything requires some bullet points, some planning. We must know what we are aiming for and what we're going to use and how to use it.
 
-The first and foremost is to know the theory behind the emulator and all fields related, such as the ones described on the section below.
+The first and foremost is to know the theory behind the emulator and all fields related, such as the ones described in the section below.
 
 Then do some POC-like code that helps us understand the theory behind it better.
 
-After all, the next step is to implement it in the desired space/language/framework. The key in this part is to divide the work in small chunks and then work on them separately one after another in order to not lose traction and motivation of the project as a whole.
+Finally, the next step is to implement it in the desired space/language/framework. The key in this part is to divide the work in small chunks and then work on them separately one after another in order to not lose traction and motivation of the project as a whole.
 
-## Theoric Fundaments
+## Theory fundamentals
 To start learning about emulators is necessary to learn first about some core principles of Computer Science, as they are inside every computer-like type of system.
 
 ### Numbering systems representations
-Usually in our day to day work we use the `base10 representation` (also known as `decimal system`), which consists in multiplying some number by 10. Here's an example:
+Usually in our day to day work/life we use the `base10 representation` (also known as `decimal system`), which consists in multiplying some number by 10. Here's an example:
 
 <div align="center">
   <image src="../img/base_decimal.jpg" width="550" height="300">
@@ -106,7 +106,7 @@ XOR 0011 (decimal 3)
 ### Choosing the system to emulate
 An emulator is unique to a console/computer/system. Therefore, if you know how to emulate, for instance, a Playstation console, that does not mean that you know how to emulate a NES one. Every system will be different.
 
-The first thing to do when creating an emulator is to understand how to the physical console works.
+The first thing to do when creating an emulator is to understand how the physical console works.
 - What are the components (CPU, PPU, APU, Memory...)?
 - How are they distributed?
 - How are they interconnected?
@@ -135,7 +135,7 @@ Its architecture consists of:
 - Three registers: `Accumulator`, `X` and `Y`, each one with 1 byte, used to perform mathematical operations and what-not;
 - One `status` register to store our operation [flags](https://github.com/Guilospanck/nes-emulator-rust#flags);
 - A [stack pointer](https://github.com/Guilospanck/nes-emulator-rust#stack-pointer) that shows what is the next free address to use the stack;
-- A 16-bit bus to address memory.
+- A 16-bit bus to [address memory](https://github.com/Guilospanck/nes-emulator-rust/blob/main/docs/journey/index.md#address-space).
 
 ### Stack Pointer
 A stack is an abstract data type widely used in mostly everything. It makes use of the concept of LIFO (<i><b>L</b>ast <b>I</b>n <b>F</b>irst <b>O</b>ut</i>).
@@ -149,7 +149,7 @@ The stack pointer is just an 1-byte address that tells us what is the next free 
 
 The addresses reserved for the stack are the ones from `$0100` to `$01FF`.
 
-> One thing to notice is that the stack in the 6502 starts from up addresses to down ones. For example, if we have two values to be inserted into the stack, the first one will be inserted at the address `$01FF` and the second one at `$01FE`. After these instructions, the Stack Pointer will have the value `$FD` indicating that the next free address in the stack is the `$01FD`.
+> One thing to notice is that the stack in the 6502 starts from top addresses to down ones. For example, if we have two values to be inserted into the stack, the first one will be inserted at the address `$01FF` and the second one at `$01FE`. After these instructions, the Stack Pointer will have the value `$FD` indicating that the next free address in the stack is the `$01FD`.
 
 ### Flags
 The flags are nothing more than 1-bit values that tells us the current state of the operations happening in the CPU. These are them:
@@ -180,7 +180,7 @@ The 6502 CPU has 56 instructions and 151 official opcodes.
 
 As you can see from the image above, there aren't 151 opcodes. So, from where they come?
 
-Each instruction has a different way of being processed (or, we should say, different `addressing modes`).
+Each instruction has a different way of being processed (or, we should say, different `addressing modes`), and each one of those modes for each instruction will have a different opcode.
 
 ### Addressing Modes
 The addressing modes 6502 have are:
@@ -315,4 +315,8 @@ The good thing is that when you have a grasp of it, you can really be astonished
 
 This first part is focused on the CPU component of an emulator. There exists also the ppu, audio, rom, bus and gamepad components, but that is for another time.
 
-I really hope that this basic, unrevised and caotic article could help you all spark the fire of wanting to get into the development of emulators or low-level concepts in general. 
+I really hope that this basic, unrevised and chaotic article could help you all spark the fire of wanting to get into the development of emulators or low-level concepts in general. 
+
+See you next time!
+
+👉🏻 All the code is available at the [GitHub repository](https://github.com/Guilospanck/nes-emulator-rust).
