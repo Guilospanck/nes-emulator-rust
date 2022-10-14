@@ -4,7 +4,7 @@
 Since I started programming I always wanted to know how an emulator works.
 > How can a computer let me play the same game that otherwise would require a console like Game Boy, NES, Playstation and so on?
 
-Whenever I would look into the realms of how to write an emulator, I'd always found it pretty difficulty to even start (and, to be totally honest, it does require many HSS - <i>Hours Sitting Studying</i>), so I'd never do it.
+Whenever I would look into the realms of how to write an emulator, I'd always find it pretty difficulty to even start (and, to be totally honest, it does require many HSS - <i>Hours Sitting Studying</i>), so I'd never do it.
 
 But some time ago, I decided to get into it and understand at least the principles of how it works and how I can write one. This is my journey.
 
@@ -13,9 +13,9 @@ The process of initiating anything requires some bullet points. We must know wha
 
 The first and foremost is to know the theory behind the emulator and all fields related, such as the ones described on the section below.
 
-Then do some POC-like code that helps you understand the theory behind it better.
+Then do some POC-like code that helps us understand the theory behind it better.
 
-After all, implement it in the desired space/language/framework. The key in this part is to divide the work in small chunks and then work on them separately one after another in order to not lose traction and motivation of the project as a whole.
+After all, the next step is to implement it in the desired space/language/framework. The key in this part is to divide the work in small chunks and then work on them separately one after another in order to not lose traction and motivation of the project as a whole.
 
 ## Theoric Fundaments
 To start learning about emulators is necessary to learn first about some core principles of Computer Science, as they are inside every computer-like type of system.
@@ -161,6 +161,13 @@ The flags are nothing more than 1-bit values that tells us the current state of 
 
 Each CPU instruction will update (or not) those values depending on the result of the operation.
 
+### Address space
+The 6502 has a 16-bit address space going from `$0000` to `$FFFF`. Therefore, it can address 2^16 (65536) memory locations.
+
+This address space can be used to read from cartridges, graphics, audio components and other things.
+
+The addressing in this case means that whenever the CPU reads a value from a part of the address space, it's actually reading from the component which was addressed to that space.
+
 ### Instructions and Opcodes
 The 6502 CPU has 56 instructions and 151 official opcodes.
 
@@ -243,11 +250,35 @@ Basically (and in a simplified way) the addressing modes work as follows:
 
 
 ## Development
-Following the guidelines from the [Methodology section](https://github.com/Guilospanck/nes-emulator-rust/blob/main/docs/journey/index.md#methodology), the first thing to do is to learn more about how the NES (to be more incisive, the 6502 CPU) works. I started this about 2 months ago.
+Following the guidelines from the [Methodology section](https://github.com/Guilospanck/nes-emulator-rust/blob/main/docs/journey/index.md#methodology), the first thing to do is to learn more about how the NES (to be more incisive, the 6502 CPU) works.
 
 When you first start reading it, it looks like a beast (even though it's one of the simplest CPUs out there). Do not be afraid. You can do it. 
 
 > By the way, those motivational words are for myself.
 
-In this part you should be reading about `registers`, 
+In this part you should be reading about `registers`, `accumulator`, operation codes (AKA `opcodes`), `instructions`, `stack`, `program counter` and everything related to that. It's super important. Do not skip it.
 
+As just reading is not enough, one must also act on it. Put it into practice. Therefore, coding the instructions of the 6502 in 6502 assembly language is a good start. You can take a look at [Easy 6502](https://skilldrick.github.io/easy6502/). There you can find some examples and also a nice working playground that will show you the current status of the CPU flags, registers, stack and program counter.
+You can also use the `debug` function to go through your program step by step and see how everything is working.
+
+<div align="center">
+  <a href="https://skilldrick.github.io/easy6502/">
+    <image src="../img/easy6502.png" width="500" height="400">
+    <div>Easy 6502 by Nick Morgan</div>
+  </a>
+</div>
+
+The next step is to actually implement those CPU instructions using the language/framework you want. In this case we're using the Rust language. The reason for that is mostly because <s><i><b>I want</b></i></s> Rust is a fast language, very close to the machine code and also because of practice purposes.
+
+At this point, if you've followed the guidelines, it shouldn't be hard for you to implement it, because the operations will not be that complex (but it will require a lot of coding).
+
+The [address space](https://github.com/Guilospanck/nes-emulator-rust/blob/main/docs/journey/index.md#address-space), for example, will be emulated as an array of size `0xFFFF` using an `u16` type. The `Program Counter`, the [Stack Pointer](https://github.com/Guilospanck/nes-emulator-rust/blob/main/docs/journey/index.md#stack-pointer), and the [Registers](https://github.com/Guilospanck/nes-emulator-rust/blob/main/docs/journey/index.md#cpu-6502) will be `u8` types that will hold the value of the current address in our address space (the value we are reading and evaluating).
+
+Using the same idea, the [flags](https://github.com/Guilospanck/nes-emulator-rust/blob/main/docs/journey/index.md#flags) will also be an `u8` type that will allow us to read its value in binary form to verify which ones are set or clear.
+
+<div align="center">
+  <a href="https://github.com/Guilospanck/nes-emulator-rust/blob/main/src/cpu.rs#L34">
+    <image src="../img/snap.png" width="550" height="400">
+    <div>CPU struct</div>
+  </a>
+</div>
