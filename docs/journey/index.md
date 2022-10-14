@@ -258,6 +258,8 @@ When you first start reading it, it looks like a beast (even though it's one of 
 
 In this part you should be reading about `registers`, `accumulator`, operation codes (AKA `opcodes`), `instructions`, `stack`, `program counter` and everything related to that. It's super important. Do not skip it.
 
+Good information for this part can be found at [NESDev website](https://www.nesdev.org/obelisk-6502-guide/).
+
 As just reading is not enough, one must also act on it. Put it into practice. Therefore, coding the instructions of the 6502 in 6502 assembly language is a good start. You can take a look at [Easy 6502](https://skilldrick.github.io/easy6502/). There you can find some examples and also a nice working playground that will show you the current status of the CPU flags, registers, stack and program counter.
 You can also use the `debug` function to go through your program step by step and see how everything is working.
 
@@ -282,3 +284,35 @@ Using the same idea, the [flags](https://github.com/Guilospanck/nes-emulator-rus
     <div>CPU struct</div>
   </a>
 </div>
+
+Here's an example of implementation of the `LDA` (loads some value into the Accumulator) instruction. 
+<div align="center">
+  <a href="https://github.com/Guilospanck/nes-emulator-rust/blob/main/src/cpu.rs#L416">
+    <image src="../img/snap2.png" width="550" height="250">
+    <div>Example of implementation of LDA instruction</div>
+  </a>
+</div>
+
+As you can see, we receive a parameter called `addressing_mode` that tells us which mode we are operating (Absolute, Immediate, ZeroPage, and so on).
+
+Then, when we get the address at which the value exists and read it from the [address space](https://github.com/Guilospanck/nes-emulator-rust/blob/main/docs/journey/index.md#address-space).
+
+Finally, we load it into the accumulator and update the `negative` and `carry` flags appropriately.
+
+We know what to do because we're following the reference for that instruction.
+
+<div align="center">
+  <a href="https://www.nesdev.org/obelisk-6502-guide/reference.html#LDA">
+    <image src="../img/lda.png" width="550" height="450">
+    <div>Reference of LDA instruction</div>
+  </a>
+</div>
+
+## Conclusion
+By now you may know what I meant in the beginning when I told you that writing an emulator requires a lot of studying and knowledge of different related concepts.
+
+The good thing is that when you have a grasp of it, you can really be astonished by how people before us thought about things. How they created many things from dust, out of thin air.
+
+This first part is focused on the CPU component of an emulator. There exists also the ppu, audio, rom, bus and gamepad components, but that is for another time.
+
+I really hope that this basic, unrevised and caotic article could help you all spark the fire of wanting to get into the development of emulators or low-level concepts in general. 
